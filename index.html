@@ -74,9 +74,10 @@ body{margin:0;padding:0;font-family:'Segoe UI', Tahoma, Verdana, sans-serif;disp
 .social-icon{font-size:22px}
 .inv-info b{display:block;font-size:13px;color:#fff}
 .inv-info span{font-size:11px;color:#ffd700}
-.inv-btn{background:linear-gradient(#00e676,#00c853);border:none;color:#fff;font-weight:bold;padding:8px 12px;border-radius:8px;cursor:pointer;font-size:11px}
-.inv-btn.done{background:#1a3a1a;color:#76ff03;border:1px solid #76ff03;cursor:not-allowed;opacity:0.9}
-.task-buttons-group{display:flex;gap:5px}
+.inv-btn{background:linear-gradient(#00e676,#00c853);border:none;color:#fff;font-weight:bold;padding:8px 14px;border-radius:8px;cursor:pointer;font-size:11px}
+.inv-btn.done{background:linear-gradient(#1b5e20, #0f3812);color:#76ff03;border:1px solid #76ff03;cursor:not-allowed}
+.friend-row{background:rgba(255,215,0,0.05);border:1px solid rgba(255,215,0,0.2);border-radius:10px;padding:8px 12px;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center;font-size:12px}
+.friend-row span{color:#ffea9f}
 .pop-text{position:absolute;left:50%;top:40%;transform:translate(-50%, -50%) scale(0.5);font-weight:900;font-size:45px;background:linear-gradient(180deg, #ffffff 0%, #ffdf73 30%, #ffd700 60%, #cc9900 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;pointer-events:none;z-index:999999;animation:float3DCenter 0.7s forwards}
 @keyframes float3DCenter{
   0%{opacity:0;transform:translate(-50%, -50%) scale(0.4) rotate(-5deg);}
@@ -157,10 +158,15 @@ body{margin:0;padding:0;font-family:'Segoe UI', Tahoma, Verdana, sans-serif;disp
   <!-- DOSTLAR (REFERRAL) MODALI -->
   <div class="modal-overlay" id="refModal">
     <div class="modal-header"><button class="gold-back-btn" onclick="closeModal('refModal')">⬅ Geri</button><h3 class="modal-title">👥 Dost Dəvəti</h3><div style="width:60px"></div></div>
-    <div class="modal-body" style="text-align:center;padding-top:30px;">
-      <p style="color:#ffea9f;font-size:14px;margin-bottom:15px;">Hər dəvət etdiyin dost üçün <b>1,000 AZC</b> qazan!</p>
-      <input type="text" id="refLinkInput" readonly style="width:100%;padding:12px;border-radius:10px;border:2px solid #ffd700;background:#03080f;color:#ffd700;text-align:center;font-size:12px;margin-bottom:15px">
-      <button class="inv-btn" onclick="copyRefLink()" style="width:100%;padding:12px;font-size:14px;background:linear-gradient(#00e676,#00c853);color:#fff;">Linki Kopyala</button>
+    <div class="modal-body" style="text-align:center;padding-top:20px;">
+      <p style="color:#ffea9f;font-size:13px;margin-bottom:10px;">Hər dəvət etdiyin dost üçün <b>1,000 AZC</b> qazan!</p>
+      <input type="text" id="refLinkInput" readonly style="width:100%;padding:10px;border-radius:10px;border:2px solid #ffd700;background:#03080f;color:#ffd700;text-align:center;font-size:11px;margin-bottom:10px">
+      <button class="inv-btn" onclick="copyRefLink()" style="width:100%;padding:10px;font-size:13px;background:linear-gradient(#00e676,#00c853);color:#fff;margin-bottom:15px;">Linki Kopyala</button>
+      
+      <h4 style="color:#ffd700;text-align:left;margin-bottom:8px;font-size:13px;">Dəvət etdiyin dostlar:</h4>
+      <div id="friendsListContainer" style="max-height:220px;overflow-y:auto;text-align:left;">
+        <!-- Dəvət olunan dostlar burada görünəcək -->
+      </div>
     </div>
   </div>
 
@@ -216,6 +222,35 @@ tg.expand();
 let telegramUser = tg.initDataUnsafe?.user;
 let userUniqueId = telegramUser ? telegramUser.id : Math.floor(100000 + Math.random() * 900000);
 let userFullName = telegramUser ? (telegramUser.first_name + (telegramUser.last_name ? " " + telegramUser.last_name : "")) : "Oyunçu";
+
+// URL-dən referal yoxlanışı (?start=ref_ID)
+const urlParams = new URLSearchParams(window.location.search);
+// Telegram WebApp start_param dəstəyi
+let startParam = tg.initDataUnsafe?.start_param || "";
+let referrerId = "";
+if(startParam.startsWith("ref_")) {
+    referrerId = startParam.replace("ref_", "");
+} else {
+    // Əgər birbaşa linklə gəlibsə
+    let hash = window.location.search;
+    let match = hash.match(/start=ref_(\d+)/);
+    if(match) referrerId = match[1];
+}
+
+// Əgər kimsə kimsənin linki ilə gəlibsə və özü hələ qeydiyyatdan keçməyibsə
+if(referrerId && referrerId !== String(userUniqueId)) {
+    let refListKey = 'az_my_referrals_' + referrerId;
+    let existingRefs = JSON.parse(localStorage.getItem(refListKey)) || [];
+    // Əgər bu istifadəçi hələ əlavə olunmayıbsa, əlavə edirik
+    if(!existingRefs.some(r => r.id === userUniqueId)) {
+        existingRefs.push({
+            id: userUniqueId,
+            name: userFullName,
+            balance: 0
+        });
+        localStorage.setItem(refListKey, JSON.stringify(existingRefs));
+    }
+}
 
 let currentBalance = parseFloat(localStorage.getItem('az_balance_' + userUniqueId)) || 0;
 let maxEnergy = parseInt(localStorage.getItem('az_maxEnergy_' + userUniqueId)) || 500;
@@ -275,12 +310,12 @@ let cards = JSON.parse(localStorage.getItem('az_cards_' + userUniqueId)) || [
   {id: 30, name: "Sonsuzluq Bloku", icon: "♾️", basePrice: 25000, baseProfit: 1000000, level: 0}
 ];
 
-// Tapşırıqların vəziyyəti: false - hələ götürülməyib, true - mükafat götürülüb (kilidlənib)
-let tasksClaimed = JSON.parse(localStorage.getItem('az_tasksClaimed_' + userUniqueId)) || {
-  telegram: false,
-  instagram: false,
-  tiktok: false,
-  youtube: false
+// Tapşırıqların vəziyyəti: 0 - Abunə ol / İzlə, 1 - Götür, 2 - Abunə olundu / İzlənildi
+let tasksState = JSON.parse(localStorage.getItem('az_tasksState_' + userUniqueId)) || {
+  telegram: 0,
+  instagram: 0,
+  tiktok: 0,
+  youtube: 0
 };
 
 function updateUI() {
@@ -302,6 +337,24 @@ function updateUI() {
     if(boostCurrentPower) boostCurrentPower.innerText = `+${tapPower} AZC / klik`;
     if(energyText) energyText.innerText = `⚡ ${currentEnergy}/${maxEnergy}`;
     if(currentEnergyLimitTxt) currentEnergyLimitTxt.innerText = maxEnergy;
+
+    // Əgər kimsəreferralla gəlibsə, həmin istifadəçinin balansını da referer siyahısında yeniləyirik
+    updateMyReferrerBalanceInStorage();
+}
+
+function updateMyReferrerBalanceInStorage() {
+    // Bütün localStorage-də digər istifadəçilərin referal siyahılarını yoxlayırıq ki, bu istifadəçinin balansı yenilənsin
+    for(let i=0; i<localStorage.length; i++) {
+        let key = localStorage.key(i);
+        if(key && key.startsWith('az_my_referrals_')) {
+            let list = JSON.parse(localStorage.getItem(key)) || [];
+            let found = list.find(r => r.id === userUniqueId);
+            if(found) {
+                found.balance = currentBalance;
+                localStorage.setItem(key, JSON.stringify(list));
+            }
+        }
+    }
 }
 
 function renderTasks() {
@@ -317,20 +370,18 @@ function renderTasks() {
 
     container.innerHTML = '';
     tasksData.forEach(t => {
-        let isClaimed = tasksClaimed[t.key];
-        let buttonsHTML = '';
+        let st = tasksState[t.key];
+        let btnHTML = '';
 
-        if (!isClaimed) {
-            // Hələ mükafat götürülməyib: 2 düymə görünür (Linkə təkrar-təkrar gedib baxa bilər + Götür düyməsi)
-            buttonsHTML = `
-                <div class="task-buttons-group">
-                    <button class="inv-btn" onclick="window.open('${t.url}', '_blank')">${t.subText}</button>
-                    <button class="inv-btn" onclick="claimTaskReward('${t.key}')" style="background:linear-gradient(#ffd700,#ffa000);color:#111;">Götür</button>
-                </div>
-            `;
+        if(st === 0) {
+            // İlk vəziyyət: Abunə ol / İzlə (Yaşıl düymə)
+            btnHTML = `<button class="inv-btn" onclick="handleTaskClick('${t.key}', '${t.url}')">${t.subText}</button>`;
+        } else if(st === 1) {
+            // İkinci vəziyyət: Keçid edildi, indi Götür düyməsi (Sarı rəngdə)
+            btnHTML = `<button class="inv-btn" onclick="handleTaskClick('${t.key}', '${t.url}')" style="background:linear-gradient(#ffd700,#ffa000);color:#111;">Götür</button>`;
         } else {
-            // Mükafat götürülübsə: düymə kilidlənir və abunə olundu yazılır
-            buttonsHTML = `<button class="inv-btn done" disabled>${t.doneText}</button>`;
+            // Üçüncü vəziyyət: Mükafat götürüldü, yalnız Abunə olundu / İzlənildi yazılır
+            btnHTML = `<button class="inv-btn done" disabled>${t.doneText}</button>`;
         }
 
         container.innerHTML += `
@@ -339,21 +390,58 @@ function renderTasks() {
               <span class="social-icon">${t.icon}</span>
               <div><b>${t.name}</b><span>+1,000 AZC</span></div>
             </div>
-            <div>${buttonsHTML}</div>
+            <div>${btnHTML}</div>
           </div>
         `;
     });
 }
 
-function claimTaskReward(key) {
-    if (!tasksClaimed[key]) {
-        tasksClaimed[key] = true;
+function handleTaskClick(key, url) {
+    // Hər dəfə istifadəçi düyməyə basanda linkə yenə daxil ola bilər
+    window.open(url, '_blank');
+
+    if(tasksState[key] === 0) {
+        // İlk dəfə basanda düymə "Götür" olur
+        tasksState[key] = 1;
+        saveGame();
+        renderTasks();
+    } else if(tasksState[key] === 1) {
+        // "Götür" düyməsinə basanda pulu verir və tamamilə "Abunə olundu" edir
         currentBalance += 1000;
+        tasksState[key] = 2;
         updateUI();
         saveGame();
         renderTasks();
         alert("Təbriklər! +1,000 AZC balansınıza əlavə olundu.");
     }
+}
+
+function renderFriendsList() {
+    let container = document.getElementById('friendsListContainer');
+    if(!container) return;
+    
+    let myRefKey = 'az_my_referrals_' + userUniqueId;
+    let friends = JSON.parse(localStorage.getItem(myRefKey)) || [];
+
+    if(friends.length === 0) {
+        container.innerHTML = `<div style="color:#aaa;font-size:12px;text-align:center;padding:15px;">Hələ dəvət etdiyin dost yoxdur. Linki kopyalayıb dostlarına at!</div>`;
+        return;
+    }
+
+    container.innerHTML = '';
+    friends.forEach(f => {
+        container.innerHTML += `
+            <div class="friend-row">
+                <div>
+                    <b>${f.name}</b><br>
+                    <span style="font-size:10px;color:#888;">ID: ${f.id}</span>
+                </div>
+                <div style="text-align:right;">
+                    <span style="color:#76ff03;font-weight:bold;">🪙 ${Math.floor(f.balance).toLocaleString()} AZC</span>
+                </div>
+            </div>
+        `;
+    });
 }
 
 function renderCards() {
@@ -514,7 +602,8 @@ function saveGame() {
     localStorage.setItem('az_tapPower_' + userUniqueId, tapPower);
     localStorage.setItem('az_hourlyProfit_' + userUniqueId, hourlyProfit);
     localStorage.setItem('az_cards_' + userUniqueId, JSON.stringify(cards));
-    localStorage.setItem('az_tasksClaimed_' + userUniqueId, JSON.stringify(tasksClaimed));
+    localStorage.setItem('az_tasksState_' + userUniqueId, JSON.stringify(tasksState));
+    updateMyReferrerBalanceInStorage();
 }
 
 const coinBtn = document.getElementById('coinBtn');
@@ -559,6 +648,7 @@ function openModal(id) {
     if(id === 'investModal') renderCards();
     if(id === 'dailyModal') checkBonusTimer();
     if(id === 'tasksModal') renderTasks();
+    if(id === 'refModal') renderFriendsList();
     let m = document.getElementById(id);
     if(m) m.style.display = 'flex'; 
 }
@@ -567,7 +657,7 @@ function closeModal(id) {
     if(m) m.style.display = 'none'; 
 }
 
-updateUI(); renderCards(); renderTasks();
+updateUI(); renderCards(); renderTasks(); renderFriendsList();
 </script>
 </body>
 </html>
