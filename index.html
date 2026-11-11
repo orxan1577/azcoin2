@@ -21,7 +21,7 @@ body{margin:0;padding:0;font-family:'Segoe UI', Tahoma, Verdana, sans-serif;disp
 .rank-container{position:absolute;top:52px;left:10px;right:10px;z-index:20;background:rgba(10,25,40,0.8);padding:5px 10px;border-radius:10px;border:1px solid rgba(255,215,0,0.3)}
 .rank-info-row{display:flex;justify-content:space-between;font-size:11px;font-weight:bold;color:#ffea9f;margin-bottom:3px}
 .rank-bar-bg{width:100%;background:rgba(0,0,0,0.5);height:6px;border-radius:3px;overflow:hidden;border:1px solid rgba(255,215,0,0.3)}
-.rank-bar-fill{width:0%;height:100%;background:linear-gradient(90deg, #76ff03, #ffd700);border-radius:3px}
+.rank-bar-fill{width:0%;height:100%;background:linear-gradient(90deg, #76ff03, #ffd700);border-radius:3px;transition: width 0.3s ease}
 
 .top-stats-container{position:absolute;top:92px;left:10px;right:10px;background:rgba(10,25,40,0.85);border:1.5px solid #ffd700;border-radius:14px;padding:6px 8px;text-align:center;display:grid;grid-template-columns:repeat(3,1fr);gap:6px;box-shadow:0 4px 15px rgba(0,0,0,0.6);z-index:20}
 .stat-box{font-size:9px;color:#aaa}
@@ -98,7 +98,7 @@ body{margin:0;padding:0;font-family:'Segoe UI', Tahoma, Verdana, sans-serif;disp
   <div class="settings-btn" onclick="openModal('settingsModal')">⚙️</div>
 
   <div class="rank-container">
-    <div class="rank-info-row"><span id="rankTitle">Master 👑</span><span id="rankLevelText">Level 1/10</span></div>
+    <div class="rank-info-row"><span id="rankTitle">Master 👑 Level 1/10</span><span id="rankLevelText">0%</span></div>
     <div class="rank-bar-bg"><div class="rank-bar-fill" id="rankBarFill"></div></div>
   </div>
 
@@ -297,15 +297,14 @@ let cards = JSON.parse(localStorage.getItem('az_cards_' + userUniqueId)) || [
   {id: 22, name: "Kvant Laboratoriyası", icon: "🔮", basePrice: 12850, baseProfit: 3000, level: 0},
   {id: 23, name: "Metaverse Şəhəri", icon: "🌐", basePrice: 14000, baseProfit: 3500, level: 0},
   {id: 24, name: "Süni İntellekt", icon: "🤖", basePrice: 15200, baseProfit: 4200, level: 0},
-  {id: 25, name: "UFO Texnologiyaları", icon: "🛸", basePrice: 16450, baseProfit: 5000, level: 0},
+  {id: 25, levelMax: 20, name: "UFO Texnologiyaları", icon: "🛸", basePrice: 16450, baseProfit: 5000, level: 0},
   {id: 26, name: "Qalaktik Liman", icon: "🌌", basePrice: 17750, baseProfit: 6000, level: 0},
   {id: 27, name: "Enerji Reyti", icon: "⚡", basePrice: 19100, baseProfit: 7500, level: 0},
   {id: 28, name: "Dünya İmperiyası", icon: "👑", basePrice: 20500, baseProfit: 10000, level: 0},
   {id: 29, name: "Zaman Maşını", icon: "💫", basePrice: 21950, baseProfit: 15000, level: 0},
-  {id: 30, name: "Sonsuzluq Bloku", icon: "♾️", basePrice: 25000, baseProfit: 1000000, level: 0}
+  {id: 30, maxCardLevel: 10, name: "Sonsuzluq Bloku", icon: "♾️", basePrice: 25000, baseProfit: 1000000, level: 0}
 ];
 
-// Tapşırıqların vəziyyəti: false - hələ abunə olunmayıb / pul götürülməyib, true - pul götürülüb (artıq Abunə olundu yazılır)
 let tasksClaimed = JSON.parse(localStorage.getItem('az_tasksClaimed_' + userUniqueId)) || {
   telegram: false,
   instagram: false,
@@ -333,7 +332,25 @@ function updateUI() {
     if(energyText) energyText.innerText = `⚡ ${currentEnergy}/${maxEnergy}`;
     if(currentEnergyLimitTxt) currentEnergyLimitTxt.innerText = maxEnergy;
 
+    updateRankSystem();
     updateMyReferrerBalanceInStorage();
+}
+
+function updateRankSystem() {
+    // Ən sonuncu biznesin (id: 30, Sonsuzluq Bloku) səviyyəsi əsasında Master Level hesablanır (Maksimum 10)
+    let lastCard = cards.find(c => c.id === 30);
+    let currentCardLvl = lastCard ? lastCard.level : 0;
+    let masterLvl = Math.min(10, Math.max(1, currentCardLvl)); // 0-da olanda 1 göstərir, 10 olanda 10 olur
+    let percentage = (currentCardLvl / 10) * 100;
+    if(percentage > 100) percentage = 100;
+
+    let rankTitle = document.getElementById('rankTitle');
+    let rankLevelText = document.getElementById('rankLevelText');
+    let rankBarFill = document.getElementById('rankBarFill');
+
+    if(rankTitle) rankTitle.innerText = `Master 👑 Level ${masterLvl}/10`;
+    if(rankLevelText) rankLevelText.innerText = `${Math.floor(percentage)}%`;
+    if(rankBarFill) rankBarFill.style.width = `${percentage}%`;
 }
 
 function updateMyReferrerBalanceInStorage() {
@@ -367,10 +384,8 @@ function renderTasks() {
         let btnHTML = '';
 
         if (!isClaimed) {
-            // İlk dəfə: Yaşıl rəngdə "Abunə ol" / "İzlə". Basanda hem sayta aparır, hem pulu verir, yazı olur "Abunə olundu"
             btnHTML = `<button class="inv-btn" onclick="handleTaskAction('${t.key}', '${t.url}')">${t.subText}</button>`;
         } else {
-            // Artıq pul götürülübsə: Yaşıl rəngdə "Abunə olundu" / "İzlənildi". Yenidən basanda sadəcə səhifəyə yönləndirir, pul vermir!
             btnHTML = `<button class="inv-btn done" onclick="window.open('${t.url}', '_blank')">${t.doneText}</button>`;
         }
 
@@ -387,7 +402,6 @@ function renderTasks() {
 }
 
 function handleTaskAction(key, url) {
-    // İlk dəfə basanda: Səhifəni açır + pulu verir + statusu true edir
     window.open(url, '_blank');
     if (!tasksClaimed[key]) {
         tasksClaimed[key] = true;
@@ -436,22 +450,24 @@ function renderCards() {
         if (index > 0 && index < 29 && cards[index - 1].level < (index + 1)) {
             isLocked = true; lockReason = `${cards[index - 1].name} Lv.${index + 1} olmalıdır`;
         }
+        
+        let maxLvlLimit = (card.id === 30) ? 10 : 20;
         let currentPrice = Math.floor(card.basePrice * Math.pow(1.35, card.level));
         let currentProfit = card.baseProfit * (card.level + 1);
-        let btnClass = card.level === 0 ? 'biz-btn buy' : (card.level < 20 ? 'biz-btn active' : 'biz-btn locked');
-        let btnText = card.level === 0 ? 'AL' : (card.level < 20 ? `Lv.${card.level} (Yüksəlt)` : 'MAX');
-        if (isLocked && card.level < 20) btnClass = 'biz-btn locked';
+        let btnClass = card.level === 0 ? 'biz-btn buy' : (card.level < maxLvlLimit ? 'biz-btn active' : 'biz-btn locked');
+        let btnText = card.level === 0 ? 'AL' : (card.level < maxLvlLimit ? `Lv.${card.level} (Yüksəlt)` : 'MAX');
+        if (isLocked && card.level < maxLvlLimit) btnClass = 'biz-btn locked';
 
         container.innerHTML += `
           <div class="biz-card ${!isLocked || card.level > 0 ? 'unlocked' : ''}">
             <div>
-              <div class="biz-lvl">Lvl ${card.id} • ${card.icon} ${card.name} (Lv.${card.level}/20)</div>
+              <div class="biz-lvl">Lvl ${card.id} • ${card.icon} ${card.name} (Lv.${card.level}/${maxLvlLimit})</div>
               <div class="biz-income">+${currentProfit.toLocaleString()} AZC/saat</div>
               <div class="biz-price">Qiymət: ${currentPrice.toLocaleString()} AZC</div>
             </div>
             <div>
               <button class="${btnClass}" onclick="upgradeCard(${card.id})">${btnText}</button>
-              ${isLocked && card.level < 20 ? `<div class="biz-unlock-text">${lockReason}</div>` : ''}
+              ${isLocked && card.level < maxLvlLimit ? `<div class="biz-unlock-text">${lockReason}</div>` : ''}
             </div>
           </div>
         `;
@@ -460,7 +476,9 @@ function renderCards() {
 
 function upgradeCard(id) {
     let card = cards.find(c => c.id === id);
-    if (card.level >= 20) return;
+    let maxLvlLimit = (card.id === 30) ? 10 : 20;
+    if (card.level >= maxLvlLimit) return;
+    
     let currentPrice = Math.floor(card.basePrice * Math.pow(1.35, card.level));
     if (currentBalance >= currentPrice) {
         currentBalance -= currentPrice;
