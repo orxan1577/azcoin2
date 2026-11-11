@@ -21,7 +21,7 @@ body{margin:0;padding:0;font-family:'Segoe UI', Tahoma, Verdana, sans-serif;disp
 .rank-container{position:absolute;top:52px;left:10px;right:10px;z-index:20;background:rgba(10,25,40,0.8);padding:5px 10px;border-radius:10px;border:1px solid rgba(255,215,0,0.3)}
 .rank-info-row{display:flex;justify-content:space-between;font-size:11px;font-weight:bold;color:#ffea9f;margin-bottom:3px}
 .rank-bar-bg{width:100%;background:rgba(0,0,0,0.5);height:6px;border-radius:3px;overflow:hidden;border:1px solid rgba(255,215,0,0.3)}
-.rank-bar-fill{width:35%;height:100%;background:linear-gradient(90deg, #76ff03, #ffd700);border-radius:3px}
+.rank-bar-fill{width:0%;height:100%;background:linear-gradient(90deg, #76ff03, #ffd700);border-radius:3px}
 
 .top-stats-container{position:absolute;top:92px;left:10px;right:10px;background:rgba(10,25,40,0.85);border:1.5px solid #ffd700;border-radius:14px;padding:6px 8px;text-align:center;display:grid;grid-template-columns:repeat(3,1fr);gap:6px;box-shadow:0 4px 15px rgba(0,0,0,0.6);z-index:20}
 .stat-box{font-size:9px;color:#aaa}
@@ -74,7 +74,9 @@ body{margin:0;padding:0;font-family:'Segoe UI', Tahoma, Verdana, sans-serif;disp
 .social-icon{font-size:22px}
 .inv-info b{display:block;font-size:13px;color:#fff}
 .inv-info span{font-size:11px;color:#ffd700}
-.inv-btn{background:linear-gradient(#00e676,#00c853);border:none;color:#fff;font-weight:bold;padding:8px 14px;border-radius:8px;cursor:pointer;font-size:11px}
+.inv-btn{background:linear-gradient(#00e676,#00c853);border:none;color:#fff;font-weight:bold;padding:8px 12px;border-radius:8px;cursor:pointer;font-size:11px}
+.inv-btn.done{background:#1a3a1a;color:#76ff03;border:1px solid #76ff03;cursor:not-allowed;opacity:0.9}
+.task-buttons-group{display:flex;gap:5px}
 .pop-text{position:absolute;left:50%;top:40%;transform:translate(-50%, -50%) scale(0.5);font-weight:900;font-size:45px;background:linear-gradient(180deg, #ffffff 0%, #ffdf73 30%, #ffd700 60%, #cc9900 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;pointer-events:none;z-index:999999;animation:float3DCenter 0.7s forwards}
 @keyframes float3DCenter{
   0%{opacity:0;transform:translate(-50%, -50%) scale(0.4) rotate(-5deg);}
@@ -88,8 +90,8 @@ body{margin:0;padding:0;font-family:'Segoe UI', Tahoma, Verdana, sans-serif;disp
   <div class="user-profile-header">
     <img id="userAvatar" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='28' height='28' viewBox='0 0 24 24' fill='%23ffd700'><path d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/></svg>" class="user-avatar" alt="Profil">
     <div class="user-info-text">
-      <div class="user-name-row"><span class="user-name" id="userName">Orxan Usta</span><span class="verified-badge">✓</span></div>
-      <span class="user-id" id="userIdLabel">ID: 0508932436</span>
+      <div class="user-name-row"><span class="user-name" id="userName">Oyunçu</span><span class="verified-badge">✓</span></div>
+      <span class="user-id" id="userIdLabel">ID: --</span>
     </div>
   </div>
   <div class="settings-btn" onclick="openModal('settingsModal')">⚙️</div>
@@ -100,12 +102,12 @@ body{margin:0;padding:0;font-family:'Segoe UI', Tahoma, Verdana, sans-serif;disp
   </div>
 
   <div class="top-stats-container">
-    <div class="stat-box"><span>🪙 Balans</span><b><span id="topBalStat">1000</span></b></div>
+    <div class="stat-box"><span>🪙 Balans</span><b><span id="topBalStat">0</span></b></div>
     <div class="stat-box"><span>📈 Gəlir/saat</span><b><span id="topProfitStat">+0</span></b></div>
     <div class="stat-box"><span>🔥 Klik Gücü</span><b><span id="topPowerStat">+1</span></b></div>
   </div>
 
-  <div class="dynamic-balance"><div class="coin-icon-small">🪙</div><span id="topBal">1000</span></div>
+  <div class="dynamic-balance"><div class="coin-icon-small">🪙</div><span id="topBal">0</span></div>
   
   <div class="bottom-left-boost" onclick="openModal('boostModal')">
     <div class="brb-txt">🚀 Boost</div>
@@ -140,7 +142,7 @@ body{margin:0;padding:0;font-family:'Segoe UI', Tahoma, Verdana, sans-serif;disp
       </div>
       <div class="settings-card-3d">
         <label class="settings-label">İstifadəçi Adı:</label>
-        <input type="text" id="nameInput" class="settings-input" value="Orxan Usta">
+        <input type="text" id="nameInput" class="settings-input" value="Oyunçu">
         <button class="gold-3d-btn" onclick="saveNameOnly()">Yadda Saxla</button>
       </div>
       <div class="settings-card-3d">
@@ -158,7 +160,7 @@ body{margin:0;padding:0;font-family:'Segoe UI', Tahoma, Verdana, sans-serif;disp
     <div class="modal-body" style="text-align:center;padding-top:30px;">
       <p style="color:#ffea9f;font-size:14px;margin-bottom:15px;">Hər dəvət etdiyin dost üçün <b>1,000 AZC</b> qazan!</p>
       <input type="text" id="refLinkInput" readonly style="width:100%;padding:12px;border-radius:10px;border:2px solid #ffd700;background:#03080f;color:#ffd700;text-align:center;font-size:12px;margin-bottom:15px">
-      <button class="inv-btn" onclick="copyRefLink()" style="width:100%;padding:12px;font-size:14px;">Linki Kopyala</button>
+      <button class="inv-btn" onclick="copyRefLink()" style="width:100%;padding:12px;font-size:14px;background:linear-gradient(#00e676,#00c853);color:#fff;">Linki Kopyala</button>
     </div>
   </div>
 
@@ -171,11 +173,8 @@ body{margin:0;padding:0;font-family:'Segoe UI', Tahoma, Verdana, sans-serif;disp
   <!-- TAPŞIRIQLAR MODALI -->
   <div class="modal-overlay" id="tasksModal">
     <div class="modal-header"><button class="gold-back-btn" onclick="closeModal('tasksModal')">⬅ Geri</button><h3 class="modal-title">📋 Sosial Tapşırıqlar</h3><div style="width:60px"></div></div>
-    <div class="modal-body">
-      <div class="inv-item"><div class="inv-info"><span class="social-icon">📱</span><div><b>Telegram Kanalı</b><span>+1,000 AZC</span></div></div><button class="inv-btn" onclick="completeTask('https://t.me/azcin1')">Abunə ol</button></div>
-      <div class="inv-item"><div class="inv-info"><span class="social-icon">📸</span><div><b>Instagram Səhifəsi</b><span>+1,000 AZC</span></div></div><button class="inv-btn" onclick="completeTask('https://www.instagram.com/azcoin_official?rpxt=YnJ6NGJoajczcGp1')">İzlə</button></div>
-      <div class="inv-item"><div class="inv-info"><span class="social-icon">🎵</span><div><b>TikTok Hesabı</b><span>+1,000 AZC</span></div></div><button class="inv-btn" onclick="completeTask('https://tiktok.com/@azcoin01')">İzlə</button></div>
-      <div class="inv-item"><div class="inv-info"><span class="social-icon">▶️</span><div><b>YouTube Kanalı</b><span>+1,000 AZC</span></div></div><button class="inv-btn" onclick="completeTask('https://www.youtube.com/@AZCOINOfficial-l3p')">Abunə ol</button></div>
+    <div class="modal-body" id="tasksContainerList">
+      <!-- Dinamik yüklənəcək -->
     </div>
   </div>
 
@@ -185,7 +184,7 @@ body{margin:0;padding:0;font-family:'Segoe UI', Tahoma, Verdana, sans-serif;disp
     <div class="modal-body" style="text-align:center;padding-top:30px;">
       <p style="color:#ffea9f;font-size:14px;margin-bottom:15px;">Hər 24 saatdan bir daxil ol və 1,000 AZC qazan!</p>
       <div id="bonusTimerStatus" style="font-size:12px;color:#76ff03;margin-bottom:15px;font-weight:bold;"></div>
-      <button class="inv-btn" id="bonusBtn" onclick="claimBonus()" style="padding:12px 25px;font-size:14px;width:100%;">Götür (+1,000 AZC)</button>
+      <button class="inv-btn" id="bonusBtn" onclick="claimBonus()" style="padding:12px 25px;font-size:14px;width:100%;background:linear-gradient(#00e676,#00c853);color:#fff;">Götür (+1,000 AZC)</button>
     </div>
   </div>
 
@@ -195,7 +194,7 @@ body{margin:0;padding:0;font-family:'Segoe UI', Tahoma, Verdana, sans-serif;disp
     <div class="modal-body" style="text-align:center;padding-top:30px;">
       <h2 style="color:#76ff03;margin-bottom:10px;" id="boostCurrentPower">+1 AZC / klik</h2>
       <p style="color:#ffea9f;font-size:13px;margin-bottom:20px;">Klik gücünü artır və hər toxunuşda daha çox AZC qazan! Qiymət: 2,000 AZC</p>
-      <button class="inv-btn" onclick="buyBoost()" style="padding:12px;font-size:14px;width:100%;">Gücləndir (+1 Güc)</button>
+      <button class="inv-btn" onclick="buyBoost()" style="padding:12px;font-size:14px;width:100%;background:linear-gradient(#00e676,#00c853);color:#fff;">Gücləndir (+1 Güc)</button>
     </div>
   </div>
 
@@ -205,28 +204,27 @@ body{margin:0;padding:0;font-family:'Segoe UI', Tahoma, Verdana, sans-serif;disp
     <div class="modal-body" style="text-align:center;padding-top:30px;">
       <h2 style="color:#76ff03;margin-bottom:10px;" id="currentEnergyLimitTxt">500</h2>
       <p style="color:#ffea9f;font-size:13px;margin-bottom:20px;">Maksimum enerji limitini artır. Qiymət: 50,000 AZC</p>
-      <button class="inv-btn" onclick="buyEnergyUpgrade()" style="padding:12px;font-size:14px;width:100%;">Limitə Artır (+500 Enerji)</button>
+      <button class="inv-btn" onclick="buyEnergyUpgrade()" style="padding:12px;font-size:14px;width:100%;background:linear-gradient(#00e676,#00c853);color:#fff;">Limitə Artır (+500 Enerji)</button>
     </div>
   </div>
 </div>
 
 <script>
-// Telegram WebApp inteqrasiyası və Referal Linkin Hazırlanması
 const tg = window.Telegram.WebApp;
 tg.expand();
 
 let telegramUser = tg.initDataUnsafe?.user;
-let userUniqueId = telegramUser ? telegramUser.id : "0508932436";
-let userFullName = telegramUser ? (telegramUser.first_name + (telegramUser.last_name ? " " + telegramUser.last_name : "")) : "Orxan Usta";
+let userUniqueId = telegramUser ? telegramUser.id : Math.floor(100000 + Math.random() * 900000);
+let userFullName = telegramUser ? (telegramUser.first_name + (telegramUser.last_name ? " " + telegramUser.last_name : "")) : "Oyunçu";
 
-let currentBalance = parseFloat(localStorage.getItem('az_balance')) || 1000;
-let maxEnergy = parseInt(localStorage.getItem('az_maxEnergy')) || 500;
-let currentEnergy = parseInt(localStorage.getItem('az_energy')) || 500;
-let tapPower = parseInt(localStorage.getItem('az_tapPower')) || 1;
-let hourlyProfit = parseInt(localStorage.getItem('az_hourlyProfit')) || 0;
-let userName = localStorage.getItem('az_username') || userFullName;
-let savedWallet = localStorage.getItem('az_saved_wallet') || '';
-let lastBonusTime = parseInt(localStorage.getItem('az_lastBonusTime')) || 0;
+let currentBalance = parseFloat(localStorage.getItem('az_balance_' + userUniqueId)) || 0;
+let maxEnergy = parseInt(localStorage.getItem('az_maxEnergy_' + userUniqueId)) || 500;
+let currentEnergy = parseInt(localStorage.getItem('az_energy_' + userUniqueId)) || 500;
+let tapPower = parseInt(localStorage.getItem('az_tapPower_' + userUniqueId)) || 1;
+let hourlyProfit = parseInt(localStorage.getItem('az_hourlyProfit_' + userUniqueId)) || 0;
+let userName = localStorage.getItem('az_username_' + userUniqueId) || userFullName;
+let savedWallet = localStorage.getItem('az_saved_wallet_' + userUniqueId) || '';
+let lastBonusTime = parseInt(localStorage.getItem('az_lastBonusTime_' + userUniqueId)) || 0;
 
 let nameEl = document.getElementById('userName');
 if(nameEl) nameEl.innerText = userName;
@@ -236,7 +234,6 @@ if(nameInput) nameInput.value = userName;
 let userIdLabel = document.getElementById('userIdLabel');
 if(userIdLabel) userIdLabel.innerText = `ID: ${userUniqueId}`;
 
-// Fərdi Telegram Dəvət Linkinin Formalaşdırılması
 let botUsername = "AzcoinAzerbaycan_bot";
 let personalRefLink = `https://t.me/${botUsername}/app?start=ref_${userUniqueId}`;
 let refLinkInput = document.getElementById('refLinkInput');
@@ -245,7 +242,7 @@ if(refLinkInput) refLinkInput.value = personalRefLink;
 let walletInput = document.getElementById('walletInput');
 if(savedWallet && walletInput) { walletInput.value = savedWallet; walletInput.disabled = true; }
 
-let cards = JSON.parse(localStorage.getItem('az_cards')) || [
+let cards = JSON.parse(localStorage.getItem('az_cards_' + userUniqueId)) || [
   {id: 1, name: "Qaraj", icon: "🚗", basePrice: 150, baseProfit: 30, level: 0},
   {id: 2, name: "Şəxsi Maşın", icon: "🚙", basePrice: 300, baseProfit: 60, level: 0},
   {id: 3, name: "Kənd Evi", icon: "🏡", basePrice: 480, baseProfit: 95, level: 0},
@@ -278,6 +275,14 @@ let cards = JSON.parse(localStorage.getItem('az_cards')) || [
   {id: 30, name: "Sonsuzluq Bloku", icon: "♾️", basePrice: 25000, baseProfit: 1000000, level: 0}
 ];
 
+// Tapşırıqların vəziyyəti: false - hələ götürülməyib, true - mükafat götürülüb (kilidlənib)
+let tasksClaimed = JSON.parse(localStorage.getItem('az_tasksClaimed_' + userUniqueId)) || {
+  telegram: false,
+  instagram: false,
+  tiktok: false,
+  youtube: false
+};
+
 function updateUI() {
     let balFormatted = Math.floor(currentBalance).toLocaleString('az-AZ');
     let topBal = document.getElementById('topBal');
@@ -297,6 +302,58 @@ function updateUI() {
     if(boostCurrentPower) boostCurrentPower.innerText = `+${tapPower} AZC / klik`;
     if(energyText) energyText.innerText = `⚡ ${currentEnergy}/${maxEnergy}`;
     if(currentEnergyLimitTxt) currentEnergyLimitTxt.innerText = maxEnergy;
+}
+
+function renderTasks() {
+    let container = document.getElementById('tasksContainerList');
+    if(!container) return;
+
+    let tasksData = [
+        {key: 'telegram', name: 'Telegram Kanalı', icon: '📱', url: 'https://t.me/azcin1', subText: 'Abunə ol', doneText: 'Abunə olundu'},
+        {key: 'instagram', name: 'Instagram Səhifəsi', icon: '📸', url: 'https://www.instagram.com/azcoin_official', subText: 'İzlə', doneText: 'İzlənildi'},
+        {key: 'tiktok', name: 'TikTok Hesabı', icon: '🎵', url: 'https://tiktok.com/@azcoin01', subText: 'İzlə', doneText: 'İzlənildi'},
+        {key: 'youtube', name: 'YouTube Kanalı', icon: '▶️', url: 'https://www.youtube.com/@AZCOINOfficial-l3p', subText: 'Abunə ol', doneText: 'Abunə olundu'}
+    ];
+
+    container.innerHTML = '';
+    tasksData.forEach(t => {
+        let isClaimed = tasksClaimed[t.key];
+        let buttonsHTML = '';
+
+        if (!isClaimed) {
+            // Hələ mükafat götürülməyib: 2 düymə görünür (Linkə təkrar-təkrar gedib baxa bilər + Götür düyməsi)
+            buttonsHTML = `
+                <div class="task-buttons-group">
+                    <button class="inv-btn" onclick="window.open('${t.url}', '_blank')">${t.subText}</button>
+                    <button class="inv-btn" onclick="claimTaskReward('${t.key}')" style="background:linear-gradient(#ffd700,#ffa000);color:#111;">Götür</button>
+                </div>
+            `;
+        } else {
+            // Mükafat götürülübsə: düymə kilidlənir və abunə olundu yazılır
+            buttonsHTML = `<button class="inv-btn done" disabled>${t.doneText}</button>`;
+        }
+
+        container.innerHTML += `
+          <div class="inv-item">
+            <div class="inv-info">
+              <span class="social-icon">${t.icon}</span>
+              <div><b>${t.name}</b><span>+1,000 AZC</span></div>
+            </div>
+            <div>${buttonsHTML}</div>
+          </div>
+        `;
+    });
+}
+
+function claimTaskReward(key) {
+    if (!tasksClaimed[key]) {
+        tasksClaimed[key] = true;
+        currentBalance += 1000;
+        updateUI();
+        saveGame();
+        renderTasks();
+        alert("Təbriklər! +1,000 AZC balansınıza əlavə olundu.");
+    }
 }
 
 function renderCards() {
@@ -370,7 +427,7 @@ function claimBonus() {
         alert("Hələ 24 saat tamam olmayıb!"); return;
     }
     lastBonusTime = now;
-    localStorage.setItem('az_lastBonusTime', lastBonusTime);
+    localStorage.setItem('az_lastBonusTime_' + userUniqueId, lastBonusTime);
     currentBalance += 1000;
     updateUI(); saveGame(); checkBonusTimer();
     alert("Gündəlik bonus götürüldü! +1,000 AZC");
@@ -409,7 +466,7 @@ function saveNameOnly() {
         userName = newName;
         let nEl = document.getElementById('userName');
         if(nEl) nEl.innerText = userName;
-        localStorage.setItem('az_username', userName);
+        localStorage.setItem('az_username_' + userUniqueId, userName);
         alert('İstifadəçi adı yadda saxlanıldı!');
     } else { alert("Ad boş ola bilməz!"); }
 }
@@ -421,7 +478,7 @@ function saveWalletOnly() {
     if (savedWallet) { alert("Cüzdan ünvanı əvvəlcədən bağlanıb!"); return; }
     if (!walletVal || walletVal.length < 10) { alert("Etibarlı TRC20 ünvanı daxil edin!"); return; }
     savedWallet = walletVal;
-    localStorage.setItem('az_saved_wallet', savedWallet);
+    localStorage.setItem('az_saved_wallet_' + userUniqueId, savedWallet);
     wInp.disabled = true;
     alert("Cüzdan ünvanı uğurla bağlandı!");
 }
@@ -433,14 +490,6 @@ function selectLanguage(lang) {
     alert("Dil seçildi: " + lang.toUpperCase());
 }
 
-function completeTask(url) {
-    window.open(url, '_blank');
-    currentBalance += 1000;
-    updateUI(); saveGame();
-    alert("Tapşırıq yerinə yetirildi! +1,000 AZC qazandınız.");
-}
-
-// Referal Linkini Kopyalamaq və Paylaşmaq funksiyası
 function copyRefLink() {
     let refInput = document.getElementById('refLinkInput');
     if(refInput) {
@@ -448,7 +497,7 @@ function copyRefLink() {
         refInput.setSelectionRange(0, 99999);
         navigator.clipboard.writeText(refInput.value).then(() => {
             if(tg && tg.showAlert) {
-                tg.showAlert("Dəvət linki kopyalandı! Dostunuza göndərin.");
+                tg.showAlert("Dəvət linki kopyalandı! Dostuna göndər.");
             } else {
                 alert("Dəvət linki kopyalandı!");
             }
@@ -459,12 +508,13 @@ function copyRefLink() {
 }
 
 function saveGame() {
-    localStorage.setItem('az_balance', currentBalance);
-    localStorage.setItem('az_energy', currentEnergy);
-    localStorage.setItem('az_maxEnergy', maxEnergy);
-    localStorage.setItem('az_tapPower', tapPower);
-    localStorage.setItem('az_hourlyProfit', hourlyProfit);
-    localStorage.setItem('az_cards', JSON.stringify(cards));
+    localStorage.setItem('az_balance_' + userUniqueId, currentBalance);
+    localStorage.setItem('az_energy_' + userUniqueId, currentEnergy);
+    localStorage.setItem('az_maxEnergy_' + userUniqueId, maxEnergy);
+    localStorage.setItem('az_tapPower_' + userUniqueId, tapPower);
+    localStorage.setItem('az_hourlyProfit_' + userUniqueId, hourlyProfit);
+    localStorage.setItem('az_cards_' + userUniqueId, JSON.stringify(cards));
+    localStorage.setItem('az_tasksClaimed_' + userUniqueId, JSON.stringify(tasksClaimed));
 }
 
 const coinBtn = document.getElementById('coinBtn');
@@ -508,6 +558,7 @@ setInterval(() => {
 function openModal(id) { 
     if(id === 'investModal') renderCards();
     if(id === 'dailyModal') checkBonusTimer();
+    if(id === 'tasksModal') renderTasks();
     let m = document.getElementById(id);
     if(m) m.style.display = 'flex'; 
 }
@@ -516,7 +567,7 @@ function closeModal(id) {
     if(m) m.style.display = 'none'; 
 }
 
-updateUI(); renderCards();
+updateUI(); renderCards(); renderTasks();
 </script>
 </body>
 </html>
