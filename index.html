@@ -9,7 +9,7 @@
 <style>
 *{box-sizing:border-box;user-select:none;-webkit-tap-highlight-color:transparent}
 body{margin:0;padding:0;font-family:'Segoe UI', Tahoma, Verdana, sans-serif;display:flex;justify-content:center;color:#fff;overflow-x:hidden;background:url('https://images.unsplash.com/photo-1524813686514-a57563d77840?q=80&w=1000&auto=format&fit=crop') no-repeat center center fixed;background-size:cover;height:100vh}
-.game-container{width:100%;max-width:480px;height:100vh;max-height:860px;position:relative;background:rgba(5, 10, 20, 0.35);overflow:hidden;box-shadow:0 0 25px rgba(0,0,0,0.8);touch-action:manipulation}
+.game-container{width:100%;max-width:480px;height:100vh;max-height:860px;position:relative;background:transparent;overflow:hidden;box-shadow:0 0 25px rgba(0,0,0,0.8);touch-action:manipulation}
 .user-profile-header{position:absolute;top:10px;left:6px;display:flex;align-items:center;gap:6px;z-index:25;background:rgba(10,25,40,0.85);border:1.5px solid #ffd700;border-radius:20px;padding:3px 8px 3px 3px;box-shadow:0 0 8px rgba(255,215,0,0.4);transform:scale(0.85);transform-origin:top left}
 .user-avatar{width:28px;height:28px;border-radius:50%;border:1.5px solid #ffd700;object-fit:cover;background:#111;display:flex;align-items:center;justify-content:center;font-weight:bold;color:#ffd700;font-size:12px}
 .user-info-text{display:flex;flex-direction:column;text-align:left}
@@ -70,7 +70,7 @@ body{margin:0;padding:0;font-family:'Segoe UI', Tahoma, Verdana, sans-serif;disp
 .biz-income{font-size:13px;font-weight:bold;color:#76ff03;margin-bottom:4px}
 .biz-price{font-size:10px;color:#ccc;margin-bottom:10px}
 .biz-btn{width:100%;padding:8px;border-radius:8px;border:none;font-weight:bold;font-size:11px;cursor:pointer}
-.biz-btn.active{background:rgba(255,215,0,0.2);color:#ffd700;border:1px solid #ffd700}
+.biz-btn.active{background:rgba(250, 204, 21, 0.2);color:#ffd700;border:1px solid #ffd700}
 .biz-btn.buy{background:linear-gradient(#ffd700,#ffa000);color:#111}
 .inv-item{background:rgba(255,215,0,0.06);border:1px solid rgba(255,215,0,0.25);border-radius:12px;padding:10px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center}
 .inv-info{display:flex;align-items:center;gap:10px}
@@ -371,7 +371,6 @@ async function saveToSupabase() {
     } catch (e) {}
 }
 
-// Gündəlik Bonus Funksiyası
 function claimBonus() {
     let lastBonus = localStorage.getItem('az_lastBonus_' + userUniqueId) || 0;
     let now = new Date().getTime();
@@ -389,7 +388,6 @@ function claimBonus() {
     closeModal('dailyModal');
 }
 
-// Klik mexanizmi
 document.getElementById('coinBtn').addEventListener('pointerdown', function(e) {
     e.preventDefault();
     if (currentEnergy < tapPower) {
