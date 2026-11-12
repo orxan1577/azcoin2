@@ -117,7 +117,7 @@ body{margin:0;padding:0;font-family:'Segoe UI', Tahoma, Verdana, sans-serif;disp
   <div class="settings-btn" onclick="safelyExecute(() => openModal('settingsModal'))">⚙️</div>
 
   <div class="rank-container">
-    <div class="rank-info-row"><span id="rankTitle">Master 👑 Level 1/10</span><span id="rankLevelText">0%</span></div>
+    <div class="rank-info-row"><span id="rankTitle">Master 👑 Level 0/10</span><span id="rankLevelText">0%</span></div>
     <div class="rank-bar-bg"><div class="rank-bar-fill" id="rankBarFill"></div></div>
   </div>
 
@@ -299,7 +299,6 @@ safelyExecute(async () => {
         } catch (e) {}
     }
 
-    // Referral ID yoxlanılması
     let referrerId = null;
     try {
         const urlParams = new URLSearchParams(window.location.search);
@@ -324,7 +323,7 @@ safelyExecute(async () => {
     let currentEnergy = 500;
     let tapPower = 1;
     let hourlyProfit = 10;
-    let level = 1;
+    let level = 0; // Level 0-dan başlayır
     let userName = userFullName;
     let savedWallet = '';
     let lastBonusTime = 0;
@@ -362,13 +361,11 @@ safelyExecute(async () => {
       {id: 30, name: "Sonsuzluq Bloku", icon: "♾️", basePrice: 25000, baseProfit: 1000000, level: 0}
     ];
 
-    // Əvvəlcə HƏMİŞƏ lokal yaddaşdan (localStorage) ən son balansı götürürük ki, sıfırlanma olmasın!
     try {
         let localBal = parseFloat(localStorage.getItem('az_balance_' + userUniqueId));
         if (!isNaN(localBal)) currentBalance = localBal;
     } catch (e) {}
 
-    // Supabase-dən məlumatı yoxlayırıq
     try {
         let { data, error } = await supabaseClient.from('players').select('*').eq('id', userUniqueId).single();
         if (!data) {
@@ -377,17 +374,16 @@ safelyExecute(async () => {
                 name: userFullName,
                 balance: currentBalance,
                 profit: hourlyProfit,
-                level: 1,
+                level: 0,
                 referrer_id: referrerId
             };
             await supabaseClient.from('players').insert([newPlayer]);
         } else {
-            // Əgər bazadakı balans lokal yaddaşdan yüksəkdirsə onu götürürük, əks halda lokalda qazandığımız qorunur
             if ((data.balance || 0) > currentBalance) {
                 currentBalance = data.balance || 0;
             }
             hourlyProfit = data.profit || 10;
-            level = data.level || 1;
+            level = data.level !== undefined ? data.level : 0;
             userName = data.name || userFullName;
         }
     } catch (e) {}
@@ -460,9 +456,10 @@ safelyExecute(async () => {
 
     function updateRankSystem() {
         safelyExecute(() => {
-            let lastCard = cards.find(c => c.id === 30);
-            let currentCardLvl = lastCard ? lastCard.level : 0;
-            level = Math.min(10, Math.max(1, currentCardLvl || Math.floor(currentBalance / 10000) + 1));
+            // Səviyyə həm xala, həm də kart səviyyələrinə görə avtomatik artır (0-dan 10-a qədər)
+            let totalCardLvl = cards.reduce((sum, c) => sum + (c.level || 0), 0);
+            level = Math.min(10, Math.floor(totalCardLvl / 6) + Math.floor(currentBalance / 20000));
+            
             let percentage = (level * 10);
             if(percentage > 100) percentage = 100;
 
@@ -498,6 +495,7 @@ safelyExecute(async () => {
         } catch (e) {}
     }
 
+    // Liderlər cədvəli düzəldildi: bazadan real oyunçuları xalına, gəlirinə və səviyyəsinə görə çəkir
     window.renderLeaderboard = async function(sortBy = 'balance') {
         let container = document.getElementById('leaderboardListContainer');
         if(!container) return;
@@ -523,8 +521,11 @@ safelyExecute(async () => {
         }
 
         try {
-            let { data: players, error } = await supabaseClient.from('players').select('*').order(sortBy, { ascending: false }).limit(30);
-            if (error || !players) players = [];
+            let { data: players, error } = await supabaseClient.from('players').select('*').order(sortBy, { ascending: false }).limit(50);
+            if (error || !players || players.length === 0) {
+                container.innerHTML = '<div style="text-align:center;color:#aaa;margin-top:20px;">Hələ heç bir lider tapılmadı.</div>';
+                return;
+            }
 
             container.innerHTML = '';
             players.forEach((p, idx) => {
@@ -538,8 +539,8 @@ safelyExecute(async () => {
                         <div class="leader-left">
                             <div class="leader-rank ${rankClass}">${medal}</div>
                             <div class="leader-details">
-                                <b>${p.name} ${isMe ? '(Sən)' : ''}</b>
-                                <span>👑 Level ${p.level || 1}/10 • ID: ${p.id}</span>
+                                <b>${p.name || 'Oyunçu'} ${isMe ? '(Sən)' : ''}</b>
+                                <span>👑 Level ${p.level !== undefined ? p.level : 0}/10 • ID: ${p.id}</span>
                             </div>
                         </div>
                         <div class="leader-right">
