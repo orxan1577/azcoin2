@@ -217,10 +217,13 @@ tg.expand();
 
 let telegramUser = tg.initDataUnsafe?.user;
 
-// QƏTİ İD MÜƏYYƏNLƏŞDİRMƏSİ (Əgər Telegram İD verməsə, mövcud yaddaşdakı son İD-ni və ya daimi unikal oyunçu İD-sini götürür)
-let userUniqueId = (telegramUser && telegramUser.id) ? telegramUser.id : (localStorage.getItem('az_permanent_uid') || localStorage.getItem('az_saved_uid') || 'player_' + Math.floor(100000 + Math.random() * 900000));
-localStorage.setItem('az_permanent_uid', userUniqueId);
-localStorage.setItem('az_saved_uid', userUniqueId);
+// DƏMİR KİMİ İD MÜƏYYƏNLƏŞDİRMƏSİ (Əgər Telegram İD verməzsə, həmişə sabit yaddaşdakı İD-ni oxuyur)
+let userUniqueId = (telegramUser && telegramUser.id) ? telegramUser.id : localStorage.getItem('az_fixed_uid');
+if (!userUniqueId) {
+    // Əgər heç yoxdursa, köhnə yaddaşdakılardan birini yoxla və ya daimi yeni ID yarat
+    userUniqueId = localStorage.getItem('az_saved_uid') || localStorage.getItem('az_last_used_id') || 'player_777777';
+}
+localStorage.setItem('az_fixed_uid', userUniqueId);
 
 let userFullName = telegramUser ? (telegramUser.first_name + (telegramUser.last_name ? " " + telegramUser.last_name : "")) : (localStorage.getItem('az_username_' + userUniqueId) || "Oyunçu");
 
