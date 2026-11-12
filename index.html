@@ -8,7 +8,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *{box-sizing:border-box;user-select:none;-webkit-tap-highlight-color:transparent}
-body{margin:0;padding:0;font-family:'Segoe UI', Tahoma, Verdana, sans-serif;display:flex;justify-content:center;color:#fff;overflow-x:hidden;background:linear-gradient(180deg, #071124 0%, #0c1b33 40%, #050b14 100%);height:100vh}
+body{margin:0;padding:0;font-family:'Segoe UI', Tahoma, Verdana, sans-serif;display:flex;justify-content:center;color:#fff;overflow-x:hidden;background:linear-gradient(135deg, #090d16 0%, #111e38 50%, #05070a 100%);height:100vh}
 .game-container{width:100%;max-width:480px;height:100vh;max-height:860px;position:relative;background:transparent;overflow:hidden;box-shadow:0 0 25px rgba(0,0,0,0.8);touch-action:manipulation}
 .user-profile-header{position:absolute;top:10px;left:6px;display:flex;align-items:center;gap:6px;z-index:25;background:rgba(10,25,40,0.85);border:1.5px solid #ffd700;border-radius:20px;padding:3px 8px 3px 3px;box-shadow:0 0 8px rgba(255,215,0,0.4);transform:scale(0.85);transform-origin:top left}
 .user-avatar{width:28px;height:28px;border-radius:50%;border:1.5px solid #ffd700;object-fit:cover;background:#111;display:flex;align-items:center;justify-content:center;font-weight:bold;color:#ffd700;font-size:12px}
@@ -19,7 +19,7 @@ body{margin:0;padding:0;font-family:'Segoe UI', Tahoma, Verdana, sans-serif;disp
 .user-id{font-size:8px;color:#aaa}
 .settings-btn{position:absolute;top:10px;right:6px;width:32px;height:32px;background:rgba(10,25,40,0.85);border:1.5px solid #ffd700;border-radius:50%;display:flex;justify-content:center;align-items:center;cursor:pointer;z-index:25;box-shadow:0 0 8px rgba(255,215,0,0.4);font-size:15px}
 
-.rank-container{position:absolute;top:52px;left:10px;right:10px;z-index:20;background:rgba(10,25,40,0.85);padding:5px 10px;border-radius:10px;border:1px solid rgba(255,215,0,0.3)}
+.rank-container{position:absolute;top:52px;left:10px;right:10px;z-index:20;background:rgba(10,25,40,0.8);padding:5px 10px;border-radius:10px;border:1px solid rgba(255,215,0,0.3)}
 .rank-info-row{display:flex;justify-content:space-between;font-size:11px;font-weight:bold;color:#ffea9f;margin-bottom:3px}
 .rank-bar-bg{width:100%;background:rgba(0,0,0,0.5);height:6px;border-radius:3px;overflow:hidden;border:1px solid rgba(255,215,0,0.3)}
 .rank-bar-fill{width:0%;height:100%;background:linear-gradient(90deg, #76ff03, #ffd700);border-radius:3px;transition: width 0.3s ease}
@@ -48,7 +48,7 @@ body{margin:0;padding:0;font-family:'Segoe UI', Tahoma, Verdana, sans-serif;disp
 .bottom-actions{position:absolute;bottom:12px;left:10px;right:10px;display:flex;justify-content:space-around;padding:0 5px;z-index:25}
 .action-badge{background:rgba(10,25,40,0.88);border:2px solid #ffd700;border-radius:12px;padding:8px 12px;font-size:11px;font-weight:bold;color:#ffea9f;cursor:pointer;box-shadow:0 0 10px rgba(255,215,0,0.4)}
 
-.modal-overlay{position:absolute;inset:0;background:rgba(5, 12, 22, 0.92);display:none;flex-direction:column;z-index:200;padding:16px;overflow-y:auto}
+.modal-overlay{position:absolute;inset:0;background:radial-gradient(circle at center, rgba(10,30,50,0.95) 0%, rgba(3,10,18,0.98) 100%);display:none;flex-direction:column;z-index:200;padding:16px;overflow-y:auto}
 .modal-header{display:flex;align-items:center;justify-content:space-between;border-bottom:2px solid rgba(255,215,0,0.4);padding-bottom:10px;margin-bottom:20px}
 .gold-back-btn{background:linear-gradient(180deg, #ffe58b 0%, #ffd700 50%, #cca100 100%);border:1.5px solid #fff;color:#111;font-weight:900;padding:8px 16px;border-radius:12px;cursor:pointer;font-size:12px}
 .modal-title{color:#ffd700;font-size:18px;font-weight:900;margin:0;text-align:center;flex-grow:1}
@@ -64,13 +64,12 @@ body{margin:0;padding:0;font-family:'Segoe UI', Tahoma, Verdana, sans-serif;disp
 .settings-input{width:100%;padding:14px 16px;border-radius:14px;border:2px solid #ffd700;background:#03080f;color:#ffe58b;font-size:16px;font-weight:bold;outline:none;margin-bottom:12px}
 .gold-3d-btn{width:100%;height:50px;background:linear-gradient(180deg, #1f1b0a 0%, #120e03 50%, #080601 100%);border:2px solid #ffd700;border-radius:14px;color:#ffd700;font-weight:900;font-size:15px;cursor:pointer;text-transform:uppercase;margin-top:5px}
 .cards-grid{display:grid;grid-template-columns:repeat(2, 1fr);gap:10px}
-.biz-card{background:rgba(12,25,38,0.9);border:1.5px solid #334;border-radius:14px;padding:10px;text-align:left;display:flex;flex-direction:column;justify-content:space-between}
-.biz-card.unlocked{border-color:#ffd700;box-shadow:0 0 8px rgba(255,215,0,0.25)}
-.biz-lvl{font-size:10px;color:#aaa;margin-bottom:4px}
+.biz-card{background:rgba(12,25,38,0.9);border:1.5px solid #ffd700;border-radius:14px;padding:10px;text-align:left;display:flex;flex-direction:column;justify-content:space-between;box-shadow:0 0 10px rgba(255,215,0,0.2)}
+.biz-lvl{font-size:10px;color:#ffea9f;margin-bottom:4px;font-weight:bold}
 .biz-income{font-size:13px;font-weight:bold;color:#76ff03;margin-bottom:4px}
 .biz-price{font-size:10px;color:#ccc;margin-bottom:10px}
 .biz-btn{width:100%;padding:8px;border-radius:8px;border:none;font-weight:bold;font-size:11px;cursor:pointer}
-.biz-btn.active{background:rgba(250, 204, 21, 0.2);color:#ffd700;border:1px solid #ffd700}
+.biz-btn.active{background:rgba(255,215,0,0.2);color:#ffd700;border:1px solid #ffd700}
 .biz-btn.buy{background:linear-gradient(#ffd700,#ffa000);color:#111}
 .inv-item{background:rgba(255,215,0,0.06);border:1px solid rgba(255,215,0,0.25);border-radius:12px;padding:10px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center}
 .inv-info{display:flex;align-items:center;gap:10px}
@@ -491,7 +490,7 @@ function renderCards() {
         let currentPrice = Math.floor(card.basePrice * Math.pow(1.35, card.level));
         let currentProfit = card.baseProfit * (card.level + 1);
         container.innerHTML += `
-          <div class="biz-card unlocked">
+          <div class="biz-card">
             <div>
               <div class="biz-lvl">Lvl ${card.id} • ${card.icon} ${card.name} (Lv.${card.level})</div>
               <div class="biz-income">+${currentProfit.toLocaleString()} AZC/saat</div>
