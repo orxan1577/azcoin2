@@ -216,8 +216,13 @@ const tg = window.Telegram.WebApp;
 tg.expand();
 
 let telegramUser = tg.initDataUnsafe?.user;
-// İstifadeçi ID-sini qorumaq üçün yoxlama (sıfırlanmanın qarşısını alır)
-let userUniqueId = telegramUser ? telegramUser.id : (localStorage.getItem('az_last_used_id') || Math.floor(100000 + Math.random() * 900000));
+
+// İD qoruma mexanizmi: Əvvəl Telegram-dan yoxla, yoxdursa localStorage-də ən son işlənən İD-ni götür
+let userUniqueId = (telegramUser && telegramUser.id) ? telegramUser.id : localStorage.getItem('az_saved_uid');
+if (!userUniqueId) {
+    userUniqueId = localStorage.getItem('az_last_used_id') || Math.floor(100000 + Math.random() * 900000);
+}
+localStorage.setItem('az_saved_uid', userUniqueId);
 localStorage.setItem('az_last_used_id', userUniqueId);
 
 let userFullName = telegramUser ? (telegramUser.first_name + (telegramUser.last_name ? " " + telegramUser.last_name : "")) : "Oyunçu";
@@ -356,6 +361,7 @@ function updateUI() {
 
     updateRankSystem();
     updateMyReferrerBalanceInStorage();
+    saveGame(); // Hər UI yenilənəndə məlumatlar anında yaddaşa yazılır
 }
 
 function updateRankSystem() {
