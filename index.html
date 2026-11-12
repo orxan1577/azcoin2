@@ -3,155 +3,245 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AZ Coin Baku Bot</title>
+    <title>AZ Coin Baku</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root {
             --bg-color: #0f172a;
-            --card-bg: #1e293b;
             --accent-color: #facc15;
             --text-color: #f8fafc;
-            --text-secondary: #94a3b8;
-            --border-color: #334155;
+            --card-bg: rgba(30, 41, 59, 0.85);
+            --border-color: rgba(250, 204, 21, 0.3);
         }
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        body { background-color: var(--bg-color); color: var(--text-color); display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
-        .app-container { display: flex; flex-direction: column; height: 100%; max-width: 480px; margin: 0 auto; width: 100%; position: relative; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; user-select: none; }
+        body { 
+            background: url('https://images.unsplash.com/photo-1524813686514-a57563d77840?q=80&w=1000&auto=format&fit=crop') no-repeat center center fixed;
+            background-size: cover;
+            color: var(--text-color); 
+            display: flex; 
+            flex-direction: column; 
+            height: 100vh; 
+            overflow: hidden; 
+        }
+        .overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(10, 15, 30, 0.7);
+            z-index: 1;
+        }
+        .app-container { 
+            display: flex; 
+            flex-direction: column; 
+            height: 100%; 
+            max-width: 480px; 
+            margin: 0 auto; 
+            width: 100%; 
+            position: relative; 
+            z-index: 2;
+            padding: 10px;
+            justify-content: space-between;
+        }
         
-        /* Header */
-        .header { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background: var(--card-bg); border-bottom: 1px solid var(--border-color); }
-        .user-info { display: flex; align-items: center; gap: 10px; }
-        .avatar { width: 40px; height: 40px; border-radius: 50%; background: var(--accent-color); display: flex; align-items: center; justify-content: center; font-weight: bold; color: #000; }
-        .username { font-size: 14px; font-weight: 600; }
-        
-        /* Content Area */
-        .content { flex: 1; overflow-y: auto; padding: 20px; display: none; padding-bottom: 80px; }
-        .content.active { display: block; }
-        
-        /* Home Tab */
-        .balance-section { text-align: center; margin: 20px 0; }
-        .coin-icon { font-size: 48px; margin-bottom: 10px; }
-        .balance-num { font-size: 32px; font-weight: bold; color: var(--accent-color); }
-        .profit-rate { font-size: 14px; color: var(--text-secondary); margin-top: 5px; }
-        
-        .clicker-container { display: flex; justify-content: center; align-items: center; margin: 30px 0; }
-        .coin-btn { width: 180px; height: 180px; border-radius: 50%; background: linear-gradient(135deg, #facc15, #ca8a04); border: none; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 10px 25px rgba(250, 204, 21, 0.3); transition: transform 0.1s; }
-        .coin-btn:active { transform: scale(0.95); }
-        
-        /* Navigation */
-        .nav-bar { display: flex; justify-content: space-around; background: var(--card-bg); border-top: 1px solid var(--border-color); position: absolute; bottom: 0; width: 100%; padding: 10px 0; }
-        .nav-item { background: none; border: none; color: var(--text-secondary); display: flex; flex-direction: column; align-items: center; font-size: 11px; cursor: pointer; gap: 4px; }
-        .nav-item.active { color: var(--accent-color); }
-        .nav-item span.icon { font-size: 20px; }
+        /* Top Header */
+        .header-top { display: flex; justify-content: space-between; align-items: center; background: var(--card-bg); padding: 8px 12px; border-radius: 12px; border: 1px solid var(--border-color); }
+        .user-box { display: flex; align-items: center; gap: 8px; }
+        .avatar { width: 34px; height: 34px; border-radius: 50%; background: var(--accent-color); display: flex; align-items: center; justify-content: center; font-weight: bold; color: #000; font-size: 14px; }
+        .username { font-size: 13px; font-weight: bold; }
+        .user-id { font-size: 10px; color: #94a3b8; }
+        .settings-btn { background: none; border: none; font-size: 18px; cursor: pointer; color: var(--accent-color); }
 
-        /* Leaderboard */
-        .leaderboard-tabs { display: flex; gap: 10px; margin-bottom: 15px; overflow-x: auto; padding-bottom: 5px; }
-        .lb-tab { background: var(--card-bg); border: 1px solid var(--border-color); color: var(--text-color); padding: 8px 15px; border-radius: 20px; font-size: 12px; cursor: pointer; white-space: nowrap; }
-        .lb-tab.active { background: var(--accent-color); color: #000; font-weight: bold; border-color: var(--accent-color); }
+        /* Level Bar */
+        .level-container { background: var(--card-bg); padding: 8px 12px; border-radius: 12px; border: 1px solid var(--border-color); }
+        .level-info { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 4px; font-weight: bold; }
+        .progress-bar { width: 100%; height: 8px; background: #334155; border-radius: 4px; overflow: hidden; }
+        .progress-fill { width: 0%; height: 100%; background: var(--accent-color); transition: width 0.3s; }
+
+        /* Stats Grid */
+        .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+        .stat-card { background: var(--card-bg); padding: 6px; text-align: center; border-radius: 10px; border: 1px solid var(--border-color); font-size: 11px; }
+        .stat-value { font-weight: bold; color: var(--accent-color); font-size: 13px; margin-top: 2px; }
+
+        /* Main Clicker */
+        .main-click-section { text-align: center; flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .balance-display { display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 28px; font-weight: bold; color: var(--accent-color); margin-bottom: 10px; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
         
-        .lb-item { display: flex; align-items: center; justify-content: background; background: var(--card-bg); padding: 12px 15px; border-radius: 12px; margin-bottom: 10px; border: 1px solid var(--border-color); }
-        .lb-rank { font-weight: bold; width: 30px; color: var(--accent-color); }
-        .lb-details { flex: 1; margin-left: 10px; }
-        .lb-name { font-size: 14px; font-weight: 600; }
-        .lb-sub { font-size: 11px; color: var(--text-secondary); }
-        .lb-score { text-align: right; }
-        .lb-balance { font-weight: bold; color: var(--accent-color); font-size: 14px; }
-        
-        .btn-primary { background: var(--accent-color); color: #000; border: none; padding: 12px; width: 100%; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 15px; }
+        .coin-btn { 
+            width: 170px; height: 170px; 
+            border-radius: 50%; 
+            background: radial-gradient(circle, #fde047 0%, #ca8a04 100%); 
+            border: 4px solid #fef08a; 
+            cursor: pointer; 
+            display: flex; flex-direction: column; align-items: center; justify-content: center; 
+            box-shadow: 0 0 30px rgba(250, 204, 21, 0.5); 
+            transition: transform 0.08s; 
+            position: relative;
+        }
+        .coin-btn:active { transform: scale(0.93); }
+        .coin-inner-text { font-weight: 900; color: #451a03; font-size: 20px; text-shadow: 0 1px 2px rgba(255,255,255,0.4); }
+
+        /* Middle Boost/Limit Row */
+        .mid-controls { display: flex; justify-content: space-between; gap: 10px; }
+        .control-pill { background: var(--card-bg); border: 1px solid var(--border-color); padding: 8px 12px; border-radius: 10px; display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: bold; cursor: pointer; flex: 1; justify-content: center; }
+
+        /* Bottom Nav */
+        .nav-bar { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; background: var(--card-bg); padding: 8px; border-radius: 14px; border: 1px solid var(--border-color); }
+        .nav-item { background: none; border: none; color: var(--text-color); display: flex; flex-direction: column; align-items: center; font-size: 11px; cursor: pointer; gap: 3px; font-weight: 600; padding: 4px; border-radius: 8px; transition: background 0.2s; }
+        .nav-item:hover, .nav-item.active { background: rgba(250, 204, 21, 0.15); color: var(--accent-color); }
+        .nav-item span.icon { font-size: 18px; }
+
+        /* Modal / Content Screens */
+        .screen-modal { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #0f172a; z-index: 10; padding: 20px; flex-direction: column; }
+        .screen-modal.active { display: flex; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; font-size: 18px; font-weight: bold; color: var(--accent-color); }
+        .close-btn { background: none; border: none; color: #fff; font-size: 22px; cursor: pointer; }
     </style>
 </head>
 <body>
+    <div class="overlay"></div>
     <div class="app-container">
-        <!-- Header -->
-        <div class="header">
-            <div class="user-info">
+        
+        <!-- Üst Panel -->
+        <div class="header-top">
+            <div class="user-box">
                 <div class="avatar" id="user-avatar">O</div>
                 <div>
-                    <div class="username" id="user-name">Orxan Usta</div>
-                    <div style="font-size: 11px; color: var(--text-secondary);" id="user-lvl">Level 1/10</div>
+                    <div class="username" id="user-name">Orxan</div>
+                    <div class="user-id" id="user-id-badge">ID: --</div>
                 </div>
             </div>
-            <div style="font-size: 12px; background: var(--border-color); padding: 4px 8px; border-radius: 6px;" id="user-id-badge">ID: --</div>
+            <button class="settings-btn" onclick="alert('Parametrlər tezliklə aktiv olacaq!')">⚙️</button>
         </div>
 
-        <!-- Home Tab -->
-        <div id="tab-home" class="content active">
-            <div class="balance-section">
-                <div class="coin-icon">🪙</div>
-                <div class="balance-num" id="balance-display">0</div>
-                <div class="profit-rate" id="profit-display">+0/saat</div>
+        <!-- Level Bar -->
+        <div class="level-container">
+            <div class="level-info">
+                <span id="user-lvl-title">Master 👑 Level 1/10</span>
+                <span id="level-percent">0%</span>
             </div>
-            <div class="clicker-container">
-                <button class="coin-btn" id="click-btn">
-                    <span style="font-size: 36px;">🪙</span>
-                    <span style="font-weight: bold; color: #000; margin-top: 5px;">TAP!</span>
-                </button>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progress-fill"></div>
             </div>
         </div>
 
-        <!-- Leaderboard Tab -->
-        <div id="tab-leaderboard" class="content">
-            <h2 style="margin-bottom: 15px; font-size: 18px;">🏆 Liderlər Cədvəli</h2>
-            <div class="leaderboard-tabs">
-                <button class="lb-tab active" onclick="switchLbTab('balance')">🟡 Xal (Balans)</button>
-                <button class="lb-tab" onclick="switchLbTab('profit')">📈 Saatlıq Gəlir</button>
-                <button class="lb-tab" onclick="switchLbTab('level')">👑 Səviyyə</button>
+        <!-- Statistika Grid -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div>🟡 Balans</div>
+                <div class="stat-value" id="stat-balance">0</div>
             </div>
-            <div id="leaderboard-list">
-                <div style="text-align: center; color: var(--text-secondary); margin-top: 40px;">Yüklənir...</div>
+            <div class="stat-card">
+                <div>📈 Gəlir/saat</div>
+                <div class="stat-value" id="stat-profit">+10</div>
             </div>
-        </div>
-
-        <!-- Friends Tab -->
-        <div id="tab-friends" class="content">
-            <h2 style="margin-bottom: 15px; font-size: 18px;">👥 Dostlarım</h2>
-            <div style="background: var(--card-bg); padding: 15px; border-radius: 12px; margin-bottom: 15px; border: 1px solid var(--border-color);">
-                <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 10px;">Dostlarını dəvət et və hər ikiniz bonus qazanın!</p>
-                <button class="btn-primary" onclick="inviteFriend()">🔗 Dəvət Linkini Paylaş</button>
-            </div>
-            <div id="friends-list">
-                <div style="text-align: center; color: var(--text-secondary); margin-top: 20px;">Hələ ki dəvət edilən dost yoxdur.</div>
+            <div class="stat-card">
+                <div>🔥 Klik Gücü</div>
+                <div class="stat-value" id="stat-power">+1</div>
             </div>
         </div>
 
-        <!-- Navigation Bar -->
+        <!-- Mərkəzi Klik Bölməsi -->
+        <div class="main-click-section">
+            <div class="balance-display">
+                <span>🪙</span> <span id="balance-big">0</span>
+            </div>
+            <button class="coin-btn" id="click-btn">
+                <span style="font-size: 32px;">🏛️</span>
+                <span class="coin-inner-text">AZ COIN</span>
+            </button>
+        </div>
+
+        <!-- Boost və Limit Piltləri -->
+        <div class="mid-controls">
+            <div class="control-pill" onclick="openModal('boost-modal')">
+                <span>🚀</span>
+                <span>Boost (+1 Güc)</span>
+            </div>
+            <div class="control-pill" onclick="alert enerji məlumatı">
+                <span>⚡</span>
+                <span id="energy-text">500/500 Limit</span>
+            </div>
+        </div>
+
+        <!-- Aşağı Naviqasiya (Köhnə Dizayn Menusu) -->
         <div class="nav-bar">
-            <button class="nav-item active" onclick="switchTab('home', this)">
-                <span class="icon">🏠</span>
-                <span>Oyun</span>
+            <button class="nav-item" onclick="openModal('bonus-modal')">
+                <span class="icon">🎁</span>
+                <span>Bonus</span>
             </button>
-            <button class="nav-item" onclick="switchTab('leaderboard', this); loadLeaderboard('balance');">
-                <span class="icon">🏆</span>
-                <span>Liderlər</span>
+            <button class="nav-item" onclick="openModal('tasks-modal')">
+                <span class="icon">📋</span>
+                <span>Tapşırıq</span>
             </button>
-            <button class="nav-item" onclick="switchTab('friends', this); loadFriends();">
+            <button class="nav-item" onclick="openModal('business-modal')">
+                <span class="icon">🏢</span>
+                <span>Biznes (30)</span>
+            </button>
+            <button class="nav-item" onclick="openModal('friends-modal'); loadFriends();">
                 <span class="icon">👥</span>
                 <span>Dostlar</span>
             </button>
         </div>
     </div>
 
+    <!-- Pəncərələr (Modallar) -->
+    <div id="friends-modal" class="screen-modal">
+        <div class="modal-header">
+            <span>👥 Dostlarım və Referrallar</span>
+            <button class="close-btn" onclick="closeModal('friends-modal')">✕</button>
+        </div>
+        <div style="margin-bottom: 15px;">
+            <button style="background: var(--accent-color); color: #000; border: none; padding: 12px; width: 100%; border-radius: 10px; font-weight: bold; cursor: pointer;" onclick="inviteFriend()">🔗 Dəvət Linkini Paylaş</button>
+        </div>
+        <div id="friends-list" style="overflow-y: auto; flex: 1;">
+            <div style="text-align: center; color: #94a3b8; margin-top: 30px;">Hələ ki dəvət edilən dost yoxdur.</div>
+        </div>
+    </div>
+
+    <div id="business-modal" class="screen-modal">
+        <div class="modal-header">
+            <span>🏢 Bizneslər</span>
+            <button class="close-btn" onclick="closeModal('business-modal')">✕</button>
+        </div>
+        <p style="color: #94a3b8; font-size: 13px;">Gəlirinizi artırmaq üçün bizneslər satın alın.</p>
+    </div>
+
+    <div id="tasks-modal" class="screen-modal">
+        <div class="modal-header">
+            <span>📋 Tapşırıqlar</span>
+            <button class="close-btn" onclick="closeModal('tasks-modal')">✕</button>
+        </div>
+        <p style="color: #94a3b8; font-size: 13px;">Gündəlik tapşırıqları yerinə yetirin, coin qazanın!</p>
+    </div>
+
+    <div id="bonus-modal" class="screen-modal">
+        <div class="modal-header">
+            <span>🎁 Gündəlik Bonus</span>
+            <button class="close-btn" onclick="closeModal('bonus-modal')">✕</button>
+        </div>
+        <p style="color: #94a3b8; font-size: 13px;">Hər gün daxil olub bonusunuzu əldə edin!</p>
+    </div>
+
     <script>
-        // Supabase Bağlantısı
+        // Supabase Onlayn Bazaya Bağlantı
         const SUPABASE_URL = 'https://okmzrwtbymnvpbtnlabg.supabase.co';
         const SUPABASE_KEY = 'sb_publishable_DaNydYiJcVBmTXuADN7Rzg_8u5yFiE6';
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        // Telegram İstifadəçi Məlumatları
+        // Telegram Məlumatları
         const tg = window.Telegram.WebApp;
         tg.expand();
 
         let user = {
-            id: tg.initDataUnsafe?.user?.id ? String(tg.initDataUnsafe.user.id) : '8541108938',
-            name: tg.initDataUnsafe?.user?.first_name || 'Orxan Usta',
+            id: tg.initDataUnsafe?.user?.id ? String(tg.initDataUnsafe.user.id) : '7171314206',
+            name: tg.initDataUnsafe?.user?.first_name || 'Orxan',
             balance: 0,
             profit: 10,
             level: 1,
-            referrer_id: null
+            referrer_id: null,
+            click_power: 1
         };
 
-        // Start parametrlərindən referreri yoxla
         const urlParams = new URLSearchParams(window.location.search);
         const startParam = urlParams.get('start');
         if (startParam && startParam.startsWith('ref_')) {
@@ -159,109 +249,65 @@
         }
 
         async function initUser() {
-            // Bazada istifadəçi olub olmadığını yoxla
             let { data, error } = await supabaseClient.from('players').select('*').eq('id', user.id).single();
-            
             if (!data) {
-                // Yeni istifadəçi kimi əlavə et
                 await supabaseClient.from('players').insert([user]);
             } else {
                 user = data;
             }
-
             updateUI();
         }
 
         function updateUI() {
-            document.getElementById('balance-display').innerText = Math.floor(user.balance).toLocaleString();
-            document.getElementById('profit-display').innerText = `+${user.profit}/saat`;
+            document.getElementById('balance-big').innerText = Math.floor(user.balance).toLocaleString();
+            document.getElementById('stat-balance').innerText = Math.floor(user.balance).toLocaleString();
+            document.getElementById('stat-profit').innerText = `+${user.profit}`;
+            document.getElementById('stat-power').innerText = `+${user.click_power || 1}`;
             document.getElementById('user-name').innerText = user.name;
             document.getElementById('user-avatar').innerText = user.name.charAt(0).toUpperCase();
-            document.getElementById('user-lvl').innerText = `Level ${user.level}/10`;
             document.getElementById('user-id-badge').innerText = `ID: ${user.id}`;
+            document.getElementById('user-lvl-title').innerText = `Master 👑 Level ${user.level || 1}/10`;
+            
+            let percent = ((user.level || 1) * 10);
+            document.getElementById('level-percent').innerText = `${percent}%`;
+            document.getElementById('progress-fill').style.width = `${percent}%`;
         }
 
-        // Klik mexanizmi
+        // Klik Etmə Mexanizmi
         document.getElementById('click-btn').addEventListener('click', async () => {
-            user.balance += 1;
+            let power = user.click_power || 1;
+            user.balance += power;
             updateUI();
-            
-            // Bazaya yaz
+
             await supabaseClient.from('players').update({ balance: user.balance }).eq('id', user.id);
         });
 
-        // Tab dəyişmə
-        function switchTab(tabId, btn) {
-            document.querySelectorAll('.content').forEach(c => c.classList.remove('active'));
-            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-            document.getElementById('tab-' + tabId).classList.add('active');
-            btn.classList.add('active');
+        // Modallar üçün funksiyalar
+        function openModal(modalId) {
+            document.getElementById(modalId).classList.add('active');
+        }
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
         }
 
-        // Liderlər cədvəli
-        async function loadLeaderboard(orderBy = 'balance') {
-            const listEl = document.getElementById('leaderboard-list');
-            listEl.innerHTML = '<div style="text-align: center; color: var(--text-secondary); margin-top: 40px;">Yüklənir...</div>';
-
-            let { data, error } = await supabaseClient
-                .from('players')
-                .select('*')
-                .order(orderBy, { ascending: false })
-                .limit(20);
-
-            if (error || !data || data.length === 0) {
-                listEl.innerHTML = '<div style="text-align: center; color: var(--text-secondary); margin-top: 40px;">Hələ ki oyunçu yoxdur.</div>';
-                return;
-            }
-
-            let html = '';
-            data.forEach((p, index) => {
-                let isMe = p.id === user.id;
-                html += `
-                    <div class="lb-item" style="${isMe ? 'border-color: var(--accent-color); background: rgba(250, 204, 21, 0.05);' : ''}">
-                        <div class="lb-rank">#${index + 1}</div>
-                        <div class="lb-details">
-                            <div class="lb-name">${p.name} ${isMe ? '(Sən)' : ''}</div>
-                            <div class="lb-sub">Level ${p.level}/10 · ID: ${p.id}</div>
-                        </div>
-                        <div class="lb-score">
-                            <div class="lb-balance">🪙 ${Math.floor(p.balance).toLocaleString()}</div>
-                            <div class="lb-sub">+${p.profit}/saat</div>
-                        </div>
-                    </div>
-                `;
-            });
-            listEl.innerHTML = html;
-        }
-
-        function switchLbTab(type) {
-            document.querySelectorAll('.lb-tab').forEach(t => t.classList.remove('active'));
-            event.target.classList.add('active');
-            loadLeaderboard(type);
-        }
-
-        // Dostlar siyahısı
         async function loadFriends() {
             const friendsEl = document.getElementById('friends-list');
-            let { data, error } = await supabaseClient
-                .from('players')
-                .select('*')
-                .eq('referrer_id', user.id);
+            let { data, error } = await supabaseClient.from('players').select('*').eq('referrer_id', user.id);
 
             if (!data || data.length === 0) {
-                friendsEl.innerHTML = '<div style="text-align: center; color: var(--text-secondary); margin-top: 20px;">Hələ ki dəvət edilən dost yoxdur.</div>';
+                friendsEl.innerHTML = '<div style="text-align: center; color: #94a3b8; margin-top: 30px;">Hələ ki dəvət edilən dost yoxdur.</div>';
                 return;
             }
 
             let html = '';
             data.forEach(f => {
                 html += `
-                    <div class="lb-item">
-                        <div class="lb-details">
-                            <div class="lb-name">${f.name}</div>
-                            <div class="lb-sub">Level ${f.level}</div>
+                    <div style="background: rgba(30, 41, 59, 0.9); padding: 12px; border-radius: 10px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; border: 1px solid rgba(250, 204, 21, 0.2);">
+                        <div>
+                            <div style="font-weight: bold; font-size: 14px;">${f.name}</div>
+                            <div style="font-size: 11px; color: #94a3b8;">Level ${f.level || 1}</div>
                         </div>
-                        <div class="lb-balance">🪙 ${Math.floor(f.balance).toLocaleString()}</div>
+                        <div style="color: var(--accent-color); font-weight: bold;">🪙 ${Math.floor(f.balance).toLocaleString()}</div>
                     </div>
                 `;
             });
@@ -269,7 +315,7 @@
         }
 
         function inviteFriend() {
-            const botUsername = "AzCoinBakuBot"; 
+            const botUsername = "AZCoinBakuBot";
             const inviteUrl = `https://t.me/${botUsername}?start=ref_${user.id}`;
             if (navigator.share) {
                 navigator.share({ title: 'AZ Coin Baku', text: 'Mənimlə birlikdə AZ Coin qazan!', url: inviteUrl });
@@ -278,7 +324,6 @@
             }
         }
 
-        // Oyunu başladanda məlumatları yüklə
         initUser();
     </script>
 </body>
