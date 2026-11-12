@@ -8,10 +8,10 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *{box-sizing:border-box;user-select:none;-webkit-tap-highlight-color:transparent}
-body{margin:0;padding:0;font-family:'Segoe UI', Tahoma, Verdana, sans-serif;display:flex;justify-content:center;color:#fff;overflow-x:hidden;background:url('bg.png') no-repeat center center fixed;background-size:cover}
-.game-container{width:100%;max-width:480px;height:100vh;max-height:860px;position:relative;background:transparent;overflow:hidden;box-shadow:0 0 25px rgba(0,0,0,0.8);touch-action:manipulation}
+body{margin:0;padding:0;font-family:'Segoe UI', Tahoma, Verdana, sans-serif;display:flex;justify-content:center;color:#fff;overflow-x:hidden;background:url('https://images.unsplash.com/photo-1524813686514-a57563d77840?q=80&w=1000&auto=format&fit=crop') no-repeat center center fixed;background-size:cover}
+.game-container{width:100%;max-width:480px;height:100vh;max-height:860px;position:relative;background:rgba(10,15,30,0.65);overflow:hidden;box-shadow:0 0 25px rgba(0,0,0,0.8);touch-action:manipulation}
 .user-profile-header{position:absolute;top:10px;left:6px;display:flex;align-items:center;gap:6px;z-index:25;background:rgba(10,25,40,0.85);border:1.5px solid #ffd700;border-radius:20px;padding:3px 8px 3px 3px;box-shadow:0 0 8px rgba(255,215,0,0.4);transform:scale(0.85);transform-origin:top left}
-.user-avatar{width:28px;height:28px;border-radius:50%;border:1.5px solid #ffd700;object-fit:cover;background:#111}
+.user-avatar{width:28px;height:28px;border-radius:50%;border:1.5px solid #ffd700;object-fit:cover;background:#111;display:flex;align-items:center;justify-content:center;font-weight:bold;color:#ffd700;font-size:12px}
 .user-info-text{display:flex;flex-direction:column;text-align:left}
 .user-name-row{display:flex;align-items:center;gap:3px}
 .user-name{font-size:10px;font-weight:bold;color:#ffe58b;max-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -108,22 +108,22 @@ body{margin:0;padding:0;font-family:'Segoe UI', Tahoma, Verdana, sans-serif;disp
 <body>
 <div class="game-container" id="gameArea">
   <div class="user-profile-header">
-    <img id="userAvatar" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='28' height='28' viewBox='0 0 24 24' fill='%23ffd700'><path d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/></svg>" class="user-avatar" alt="Profil">
+    <div class="user-avatar" id="userAvatar">O</div>
     <div class="user-info-text">
-      <div class="user-name-row"><span class="user-name" id="userName">Oyunçu</span><span class="verified-badge">✓</span></div>
+      <div class="user-name-row"><span class="user-name" id="userName">Orxan</span><span class="verified-badge">✓</span></div>
       <span class="user-id" id="userIdLabel">ID: --</span>
     </div>
   </div>
   <div class="settings-btn" onclick="safelyExecute(() => openModal('settingsModal'))">⚙️</div>
 
   <div class="rank-container">
-    <div class="rank-info-row"><span id="rankTitle">Master 👑 Level 1/10</span><span id="rankLevelText">0%</span></div>
-    <div class="rank-bar-bg"><div class="rank-bar-fill" id="rankBarFill"></div></div>
+    <div class="rank-info-row"><span id="rankTitle">Master 👑 Level 1/10</span><span id="rankLevelText">10%</span></div>
+    <div class="rank-bar-bg"><div class="rank-bar-fill" id="rankBarFill" style="width: 10%;"></div></div>
   </div>
 
   <div class="top-stats-container">
     <div class="stat-box"><span>🪙 Balans</span><b><span id="topBalStat">0</span></b></div>
-    <div class="stat-box"><span>📈 Gəlir/saat</span><b><span id="topProfitStat">+0</span></b></div>
+    <div class="stat-box"><span>📈 Gəlir/saat</span><b><span id="topProfitStat">+10</span></b></div>
     <div class="stat-box"><span>🔥 Klik Gücü</span><b><span id="topPowerStat">+1</span></b></div>
   </div>
 
@@ -180,7 +180,7 @@ body{margin:0;padding:0;font-family:'Segoe UI', Tahoma, Verdana, sans-serif;disp
       </div>
       <div class="settings-card-3d">
         <label class="settings-label">İstifadəçi Adı:</label>
-        <input type="text" id="nameInput" class="settings-input" value="Oyunçu">
+        <input type="text" id="nameInput" class="settings-input" value="Orxan">
         <button class="gold-3d-btn" onclick="safelyExecute(saveNameOnly)">Yadda Saxla</button>
       </div>
       <div class="settings-card-3d">
@@ -192,7 +192,7 @@ body{margin:0;padding:0;font-family:'Segoe UI', Tahoma, Verdana, sans-serif;disp
     </div>
   </div>
 
-  <!-- DOSTLAR (REFERRAL) MODALI -->
+  <!-- DOSTLAR MODALI -->
   <div class="modal-overlay" id="refModal">
     <div class="modal-header"><button class="gold-back-btn" onclick="safelyExecute(() => closeModal('refModal'))">⬅ Geri</button><h3 class="modal-title">👥 Dost Dəvəti</h3><div style="width:60px"></div></div>
     <div class="modal-body" style="text-align:center;padding-top:20px;">
@@ -205,7 +205,7 @@ body{margin:0;padding:0;font-family:'Segoe UI', Tahoma, Verdana, sans-serif;disp
     </div>
   </div>
 
-  <!-- BİZNES (30) MODALI -->
+  <!-- BİZNES MODALI -->
   <div class="modal-overlay" id="investModal">
     <div class="modal-header"><button class="gold-back-btn" onclick="safelyExecute(() => closeModal('investModal'))">⬅ Geri</button><h3 class="modal-title">🏙️ Biznes Səviyyələri (30)</h3><div style="width:60px"></div></div>
     <div class="modal-body"><div class="cards-grid" id="cardsListContainer"></div></div>
@@ -249,108 +249,64 @@ body{margin:0;padding:0;font-family:'Segoe UI', Tahoma, Verdana, sans-serif;disp
 </div>
 
 <script>
-// Supabase Bağlantı Tənzimləmələri
 const SUPABASE_URL = 'https://okmzrwtbymnvpbtnlabg.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_DaNydYiJcVBmTXuADN7Rzg_8u5yFiE6';
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 function safelyExecute(fn) {
-    try {
-        fn();
-    } catch (e) {
-        console.error("Xəta baş verdi:", e);
-    }
+    try { fn(); } catch (e) { console.error(e); }
 }
 
 safelyExecute(async () => {
     const tg = window.Telegram?.WebApp;
-    if (tg && typeof tg.expand === 'function') {
-        tg.expand();
-    }
+    if (tg && typeof tg.expand === 'function') tg.expand();
 
     let telegramUser = null;
-    try {
-        if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
-            telegramUser = tg.initDataUnsafe.user;
-        }
-    } catch (e) {}
+    try { if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) telegramUser = tg.initDataUnsafe.user; } catch (e) {}
 
-    let userUniqueId = telegramUser && telegramUser.id ? String(telegramUser.id) : '7171314206';
-    let userFullName = telegramUser ? ((telegramUser.first_name || "") + (telegramUser.last_name ? " " + telegramUser.last_name : "")) : "Orxan";
+    let userUniqueId = '7171314206'; // Sənin sabit ID-n
+    if (telegramUser && telegramUser.id) {
+        userUniqueId = String(telegramUser.id);
+    }
 
-    // Referrer yoxlanışı
+    let userFullName = telegramUser && telegramUser.first_name ? telegramUser.first_name : "Orxan";
+
     const urlParams = new URLSearchParams(window.location.search);
-    let startParam = "";
-    if (tg && tg.initDataUnsafe && tg.initDataUnsafe.start_param) {
-        startParam = tg.initDataUnsafe.start_param;
-    } else {
-        startParam = urlParams.get('start') || "";
-    }
-    
-    let referrerId = null;
-    if(startParam.startsWith("ref_")) {
-        referrerId = startParam.replace("ref_", "");
-    }
+    let startParam = urlParams.get('start') || "";
+    let referrerId = startParam.startsWith("ref_") ? startParam.replace("ref_", "") : null;
 
-    // Oyun dəyişənləri
     let currentBalance = 0;
     let maxEnergy = 500;
     let currentEnergy = 500;
     let tapPower = 1;
     let hourlyProfit = 10;
     let level = 1;
-    let savedWallet = '';
-    let lastBonusTime = 0;
-    let cards = [
-      {id: 1, name: "Qaraj", icon: "🚗", basePrice: 150, baseProfit: 30, level: 0},
-      {id: 2, name: "Şəxsi Maşın", icon: "🚙", basePrice: 300, baseProfit: 60, level: 0},
-      {id: 3, name: "Kənd Evi", icon: "🏡", basePrice: 480, baseProfit: 95, level: 0},
-      {id: 4, name: "Market", icon: "🛒", basePrice: 700, baseProfit: 140, level: 0},
-      {id: 5, name: "Yanacaqdoldurma", icon: "⛽", basePrice: 950, baseProfit: 190, level: 0},
-      {id: 6, name: "Ofis Binası", icon: "🏢", basePrice: 1250, baseProfit: 250, level: 0},
-      {id: 7, name: "Otel Kompleksi", icon: "🏨", basePrice: 1600, baseProfit: 320, level: 0},
-      {id: 8, name: "Tikinti Şirkəti", icon: "🏗️", basePrice: 2000, baseProfit: 400, level: 0},
-      {id: 9, name: "Gəmi Taşımacılığı", icon: "🚢", basePrice: 2450, baseProfit: 490, level: 0},
-      {id: 10, name: "Avia Şirkət", icon: "✈️", basePrice: 2950, baseProfit: 590, level: 0},
-      {id: 11, name: "İT Texnopark", icon: "💻", basePrice: 3500, baseProfit: 700, level: 0},
-      {id: 12, name: "Media Holdinq", icon: "📺", basePrice: 4100, baseProfit: 820, level: 0},
-      {id: 13, name: "Günəş Stansiyası", icon: "🔋", basePrice: 4750, baseProfit: 950, level: 0},
-      {id: 14, name: "Neft Emalı Zavodu", icon: "⚡", basePrice: 5450, baseProfit: 1100, level: 0},
-      {id: 15, name: "Kripto Ferma", icon: "🪙", basePrice: 6200, baseProfit: 1250, level: 0},
-      {id: 16, name: "Milli Bank", icon: "🏦", basePrice: 7000, baseProfit: 1400, level: 0},
-      {id: 17, name: "Qlobal Ticarət", icon: "🌐", basePrice: 7850, baseProfit: 1600, level: 0},
-      {id: 18, name: "Kosmik Agentlik", icon: "🚀", basePrice: 8750, baseProfit: 1800, level: 0},
-      {id: 19, name: "Almaz Mədəni", icon: "💎", basePrice: 9700, baseProfit: 2000, level: 0},
-      {id: 20, name: "Kral Sarayı", icon: "🏰", basePrice: 10700, baseProfit: 2300, level: 0},
-      {id: 21, name: "Super Alov Qülləsi", icon: "🌟", basePrice: 11750, baseProfit: 2600, level: 0},
-      {id: 22, name: "Kvant Laboratoriyası", icon: "🔮", basePrice: 12850, baseProfit: 3000, level: 0},
-      {id: 23, name: "Metaverse Şəhəri", icon: "🌐", basePrice: 14000, baseProfit: 3500, level: 0},
-      {id: 24, name: "Süni İntellekt", icon: "🤖", basePrice: 15200, baseProfit: 4200, level: 0},
-      {id: 25, name: "UFO Texnologiyaları", icon: "🛸", basePrice: 16450, baseProfit: 5000, level: 0},
-      {id: 26, name: "Qalaktik Liman", icon: "🌌", basePrice: 17750, baseProfit: 6000, level: 0},
-      {id: 27, name: "Enerji Reyti", icon: "⚡", basePrice: 19100, baseProfit: 7500, level: 0},
-      {id: 28, name: "Dünya İmperiyası", icon: "👑", basePrice: 20500, baseProfit: 10000, level: 0},
-      {id: 29, name: "Zaman Maşını", icon: "💫", basePrice: 21950, baseProfit: 15000, level: 0},
-      {id: 30, name: "Sonsuzluq Bloku", icon: "♾️", basePrice: 25000, baseProfit: 1000000, level: 0}
-    ];
-    let tasksClaimed = { telegram: false, instagram: false, tiktok: false, youtube: false };
 
-    // Supabase-dən istifadəçi məlumatını çək və ya yarat
-    async function initSupabaseUser() {
+    // Həmçinin ehtiyat olaraq brauzerin özündə də saxlayırıq ki, internetdə problem olarsa silinməsin
+    let savedLocalBalance = localStorage.getItem('az_local_balance_' + userUniqueId);
+    if(savedLocalBalance) {
+        currentBalance = parseFloat(savedLocalBalance);
+    }
+
+    // Bazadan məlumatı çəkirik
+    async function initDatabase() {
         let { data, error } = await supabaseClient.from('players').select('*').eq('id', userUniqueId).single();
         if (!data) {
             let newUser = {
                 id: userUniqueId,
                 name: userFullName,
-                balance: 0,
-                profit: 10,
-                level: 1,
-                click_power: 1,
+                balance: currentBalance,
+                profit: hourlyProfit,
+                level: level,
+                click_power: tapPower,
                 referrer_id: referrerId
             };
             await supabaseClient.from('players').insert([newUser]);
         } else {
-            currentBalance = data.balance || 0;
+            // Əgər bazada balans varsa, onu götürürük
+            if(data.balance > currentBalance) {
+                currentBalance = data.balance;
+            }
             hourlyProfit = data.profit || 10;
             level = data.level || 1;
             tapPower = data.click_power || 1;
@@ -359,65 +315,40 @@ safelyExecute(async () => {
         updateUI();
     }
 
-    await initSupabaseUser();
+    await initDatabase();
 
     try {
-        let nameEl = document.getElementById('userName');
-        if(nameEl) nameEl.innerText = userFullName;
-        let nameInput = document.getElementById('nameInput');
-        if(nameInput) nameInput.value = userFullName;
-
-        let userIdLabel = document.getElementById('userIdLabel');
-        if(userIdLabel) userIdLabel.innerText = `ID: ${userUniqueId}`;
-
-        let botUsername = "AzCoinBakuBot";
-        let personalRefLink = `https://t.me/${botUsername}?start=ref_${userUniqueId}`;
-        let refLinkInput = document.getElementById('refLinkInput');
-        if(refLinkInput) refLinkInput.value = personalRefLink;
+        document.getElementById('userName').innerText = userFullName;
+        document.getElementById('nameInput').value = userFullName;
+        document.getElementById('userIdLabel').innerText = `ID: ${userUniqueId}`;
+        document.getElementById('userAvatar').innerText = userFullName.charAt(0).toUpperCase();
+        document.getElementById('refLinkInput').value = `https://t.me/AZCoinBakuBot?start=ref_${userUniqueId}`;
     } catch (e) {}
 
     window.updateUI = function() {
         safelyExecute(() => {
             let balFormatted = Math.floor(currentBalance).toLocaleString('az-AZ');
-            let topBal = document.getElementById('topBal');
-            let topBalStat = document.getElementById('topBalStat');
-            let topProfitStat = document.getElementById('topProfitStat');
-            let topPowerStat = document.getElementById('topPowerStat');
-            let boostSubLabel = document.getElementById('boostSubLabel');
-            let boostCurrentPower = document.getElementById('boostCurrentPower');
-            let energyText = document.getElementById('energyText');
-            let currentEnergyLimitTxt = document.getElementById('currentEnergyLimitTxt');
-            
-            if(topBal) topBal.innerText = balFormatted;
-            if(topBalStat) topBalStat.innerText = balFormatted;
-            if(topProfitStat) topProfitStat.innerText = `+${hourlyProfit.toLocaleString()}`;
-            if(topPowerStat) topPowerStat.innerText = `+${tapPower}`;
-            if(boostSubLabel) boostSubLabel.innerText = `+${tapPower} Güc`;
-            if(boostCurrentPower) boostCurrentPower.innerText = `+${tapPower} AZC / klik`;
-            if(energyText) energyText.innerText = `⚡ ${currentEnergy}/${maxEnergy}`;
-            if(currentEnergyLimitTxt) currentEnergyLimitTxt.innerText = maxEnergy;
+            document.getElementById('topBal').innerText = balFormatted;
+            document.getElementById('topBalStat').innerText = balFormatted;
+            document.getElementById('topProfitStat').innerText = `+${hourlyProfit.toLocaleString()}`;
+            document.getElementById('topPowerStat').innerText = `+${tapPower}`;
+            document.getElementById('boostSubLabel').innerText = `+${tapPower} Güc`;
+            document.getElementById('boostCurrentPower').innerText = `+${tapPower} AZC / klik`;
+            document.getElementById('energyText').innerText = `⚡ ${currentEnergy}/${maxEnergy}`;
+            document.getElementById('currentEnergyLimitTxt').innerText = maxEnergy;
 
-            updateRankSystem();
+            let percentage = (level * 10);
+            if(percentage > 100) percentage = 100;
+            document.getElementById('rankTitle').innerText = `Master 👑 Level ${level}/10`;
+            document.getElementById('rankLevelText').innerText = `${Math.floor(percentage)}%`;
+            document.getElementById('rankBarFill').style.width = `${percentage}%`;
+
+            // Həm brauzer yaddaşına, həm də Supabase-ə yazırıq
+            localStorage.setItem('az_local_balance_' + userUniqueId, currentBalance);
             saveToSupabase();
         });
     };
 
-    function updateRankSystem() {
-        safelyExecute(() => {
-            let percentage = (level * 10);
-            if(percentage > 100) percentage = 100;
-
-            let rankTitle = document.getElementById('rankTitle');
-            let rankLevelText = document.getElementById('rankLevelText');
-            let rankBarFill = document.getElementById('rankBarFill');
-
-            if(rankTitle) rankTitle.innerText = `Master 👑 Level ${level}/10`;
-            if(rankLevelText) rankLevelText.innerText = `${Math.floor(percentage)}%`;
-            if(rankBarFill) rankBarFill.style.width = `${percentage}%`;
-        });
-    }
-
-    // Onlayn Supabase Bazasına Qeyd Etmə
     async function saveToSupabase() {
         await supabaseClient.from('players').update({
             balance: currentBalance,
@@ -428,18 +359,12 @@ safelyExecute(async () => {
         }).eq('id', userUniqueId);
     }
 
-    // Liderlər Cədvəli (Supabase-dən oxuma)
     window.loadLeaderboardFromSupabase = async function(sortBy = 'balance') {
         let container = document.getElementById('leaderboardListContainer');
         if(!container) return;
         container.innerHTML = '<div style="text-align:center;color:#aaa;margin-top:20px;">Yüklənir...</div>';
 
-        let { data, error } = await supabaseClient
-            .from('players')
-            .select('*')
-            .order(sortBy, { ascending: false })
-            .limit(20);
-
+        let { data, error } = await supabaseClient.from('players').select('*').order(sortBy, { ascending: false }).limit(20);
         if (error || !data || data.length === 0) {
             container.innerHTML = '<div style="text-align:center;color:#aaa;margin-top:20px;">Hələ ki oyunçu yoxdur.</div>';
             return;
@@ -470,18 +395,13 @@ safelyExecute(async () => {
         });
     };
 
-    // Dostlar Siyahısı (Supabase-dən referral oxuma)
     window.loadFriendsFromSupabase = async function() {
         let container = document.getElementById('friendsListContainer');
         if(!container) return;
-        
-        let { data, error } = await supabaseClient
-            .from('players')
-            .select('*')
-            .eq('referrer_id', userUniqueId);
+        let { data, error } = await supabaseClient.from('players').select('*').eq('referrer_id', userUniqueId);
 
         if (!data || data.length === 0) {
-            container.innerHTML = `<div style="color:#aaa;font-size:12px;text-align:center;padding:15px;">Hələ ki dəvət etdiyin dost yoxdur. Linki kopyalayıb dostlarına at!</div>`;
+            container.innerHTML = `<div style="color:#aaa;font-size:12px;text-align:center;padding:15px;">Hələ ki dəvət etdiyin dost yoxdur.</div>`;
             return;
         }
 
@@ -501,156 +421,6 @@ safelyExecute(async () => {
         });
     };
 
-    window.renderTasks = function() {
-        let container = document.getElementById('tasksContainerList');
-        if(!container) return;
-
-        let tasksData = [
-            {key: 'telegram', name: 'Telegram Kanalı', icon: '📱', url: 'https://t.me/azcin1', subText: 'Abunə ol', doneText: 'Abunə olundu'},
-            {key: 'instagram', name: 'Instagram Səhifəsi', icon: '📸', url: 'https://www.instagram.com/azcoin_official', subText: 'İzlə', doneText: 'İzlənildi'},
-            {key: 'tiktok', name: 'TikTok Hesabı', icon: '🎵', url: 'https://tiktok.com/@azcoin01', subText: 'İzlə', doneText: 'İzlənildi'},
-            {key: 'youtube', name: 'YouTube Kanalı', icon: '▶️', url: 'https://www.youtube.com/@AZCOINOfficial-l3p', subText: 'Abunə ol', doneText: 'Abunə olundu'}
-        ];
-
-        container.innerHTML = '';
-        tasksData.forEach(t => {
-            let isClaimed = tasksClaimed[t.key];
-            let btnHTML = !isClaimed ? `<button class="inv-btn" onclick="safelyExecute(() => handleTaskAction('${t.key}', '${t.url}'))">${t.subText}</button>` : `<button class="inv-btn done" onclick="window.open('${t.url}', '_blank')">${t.doneText}</button>`;
-
-            container.innerHTML += `
-              <div class="inv-item">
-                <div class="inv-info">
-                  <span class="social-icon">${t.icon}</span>
-                  <div><b>${t.name}</b><span>+1,000 AZC</span></div>
-                </div>
-                <div>${btnHTML}</div>
-              </div>
-            `;
-        });
-    };
-
-    window.handleTaskAction = function(key, url) {
-        window.open(url, '_blank');
-        if (!tasksClaimed[key]) {
-            tasksClaimed[key] = true;
-            currentBalance += 1000;
-            window.updateUI();
-            window.renderTasks();
-            alert("Təbriklər! +1,000 AZC balansınıza əlavə olundu.");
-        }
-    };
-
-    window.renderCards = function() {
-        let container = document.getElementById('cardsListContainer');
-        if(!container) return;
-        container.innerHTML = '';
-        cards.forEach((card, index) => {
-            let currentPrice = Math.floor(card.basePrice * Math.pow(1.35, card.level));
-            let currentProfit = card.baseProfit * (card.level + 1);
-            let btnClass = card.level === 0 ? 'biz-btn buy' : 'biz-btn active';
-            let btnText = card.level === 0 ? 'AL' : `Lv.${card.level} (Yüksəlt)`;
-
-            container.innerHTML += `
-              <div class="biz-card unlocked">
-                <div>
-                  <div class="biz-lvl">Lvl ${card.id} • ${card.icon} ${card.name} (Lv.${card.level})</div>
-                  <div class="biz-income">+${currentProfit.toLocaleString()} AZC/saat</div>
-                  <div class="biz-price">Qiymət: ${currentPrice.toLocaleString()} AZC</div>
-                </div>
-                <div>
-                  <button class="${btnClass}" onclick="safelyExecute(() => upgradeCard(${card.id}))">${btnText}</button>
-                </div>
-              </div>
-            `;
-        });
-    };
-
-    window.upgradeCard = function(id) {
-        let card = cards.find(c => c.id === id);
-        if(!card) return;
-        let currentPrice = Math.floor(card.basePrice * Math.pow(1.35, card.level));
-        if (currentBalance >= currentPrice) {
-            currentBalance -= currentPrice;
-            hourlyProfit += card.baseProfit;
-            card.level += 1;
-            window.updateUI(); 
-            window.renderCards();
-        } else { 
-            alert('Kafi qədər AZC balansınız yoxdur!'); 
-        }
-    };
-
-    window.buyBoost = function() {
-        let price = 2000;
-        if (currentBalance >= price) {
-            currentBalance -= price;
-            tapPower += 1;
-            window.updateUI();
-            alert("Klik gücü artırıldı!");
-        } else {
-            alert("Kafi qədər balans yoxdur!");
-        }
-    };
-
-    window.buyEnergyUpgrade = function() {
-        let price = 50000;
-        if (currentBalance >= price) {
-            currentBalance -= price;
-            maxEnergy += 500;
-            currentEnergy = maxEnergy;
-            window.updateUI();
-            alert("Enerji limiti artırıldı!");
-        } else {
-            alert("Kafi qədər balans yoxdur!");
-        }
-    };
-
-    window.saveNameOnly = function() {
-        let inp = document.getElementById('nameInput');
-        if(!inp) return;
-        let newName = inp.value.trim();
-        if(newName) {
-            userFullName = newName;
-            let nEl = document.getElementById('userName');
-            if(nEl) nEl.innerText = userFullName;
-            window.updateUI();
-            alert('İstifadəçi adı yadda saxlanıldı!');
-        } else { 
-            alert("Ad boş ola bilməz!"); 
-        }
-    };
-
-    window.saveWalletOnly = function() {
-        let wInp = document.getElementById('walletInput');
-        if(!wInp) return;
-        let walletVal = wInp.value.trim();
-        if (!walletVal || walletVal.length < 10) { 
-            alert("Etibarlı TRC20 ünvanı daxil edin!"); 
-            return; 
-        }
-        savedWallet = walletVal;
-        wInp.disabled = true;
-        alert("Cüzdan ünvanı uğurla bağlandı!");
-    };
-
-    window.selectLanguage = function(lang) {
-        document.querySelectorAll('.flag-btn').forEach(el => el.classList.remove('active'));
-        let f = document.getElementById('flag-' + lang);
-        if(f) f.classList.add('active');
-        alert("Dil seçildi: " + lang.toUpperCase());
-    };
-
-    window.copyRefLink = function() {
-        let refInput = document.getElementById('refLinkInput');
-        if(refInput) {
-            refInput.select();
-            navigator.clipboard.writeText(refInput.value).then(() => {
-                alert("Dəvət linki kopyalandı!");
-            });
-        }
-    };
-
-    // Klik mexanizmi
     const coinBtn = document.getElementById('coinBtn');
     const gameArea = document.getElementById('gameArea');
 
@@ -675,7 +445,6 @@ safelyExecute(async () => {
         }, { passive: false });
     }
 
-    // Enerji bərpası və saatlıq gəlir dövrü
     setInterval(() => {
         if (currentEnergy < maxEnergy) {
             currentEnergy = Math.min(maxEnergy, currentEnergy + 5);
@@ -692,7 +461,6 @@ safelyExecute(async () => {
     }, 1000);
 
     window.openModal = function(id) { 
-        if(id === 'investModal') window.renderCards();
         if(id === 'tasksModal') window.renderTasks();
         if(id === 'refModal') window.loadFriendsFromSupabase();
         if(id === 'leadersModal') window.loadLeaderboardFromSupabase('balance');
