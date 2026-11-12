@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <title>AZ COIN - Baku Edition</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *{box-sizing:border-box;user-select:none;-webkit-tap-highlight-color:transparent}
 body{margin:0;padding:0;font-family:'Segoe UI', Tahoma, Verdana, sans-serif;display:flex;justify-content:center;color:#fff;overflow-x:hidden;background:url('bg.png') no-repeat center center fixed;background-size:cover}
@@ -248,6 +249,10 @@ body{margin:0;padding:0;font-family:'Segoe UI', Tahoma, Verdana, sans-serif;disp
 </div>
 
 <script>
+const SUPABASE_URL = 'https://okmzrwtbymnvpbtnlabg.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_DaNydYiJcVBmTXuADN7Rzg_8u5yFiE6';
+const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
 function safelyExecute(fn) {
     try {
         fn();
@@ -256,7 +261,7 @@ function safelyExecute(fn) {
     }
 }
 
-safelyExecute(() => {
+safelyExecute(async () => {
     const tg = window.Telegram?.WebApp;
     if (tg && typeof tg.expand === 'function') {
         tg.expand();
@@ -271,12 +276,7 @@ safelyExecute(() => {
 
     let userUniqueId = null;
     try {
-        let allKeys = Object.keys(localStorage);
-        let existingBalanceKey = allKeys.find(k => k && k.startsWith && k.startsWith('az_balance_'));
-
-        if (existingBalanceKey) {
-            userUniqueId = existingBalanceKey.replace('az_balance_', '');
-        } else if (telegramUser && telegramUser.id) {
+        if (telegramUser && telegramUser.id) {
             userUniqueId = String(telegramUser.id);
         } else {
             userUniqueId = localStorage.getItem('az_fixed_uid') || localStorage.getItem('az_saved_uid') || 'player_' + Math.floor(100000 + Math.random() * 900000);
@@ -299,6 +299,8 @@ safelyExecute(() => {
         } catch (e) {}
     }
 
+    // Referral ID yoxlanılması
+    let referrerId = null;
     try {
         const urlParams = new URLSearchParams(window.location.search);
         let startParam = "";
@@ -308,96 +310,24 @@ safelyExecute(() => {
             startParam = urlParams.get('start') || "";
         }
         
-        let referrerId = "";
         if(startParam.startsWith("ref_")) {
             referrerId = startParam.replace("ref_", "");
         } else {
             let match = startParam.match(/ref_(\d+)/);
             if(match) referrerId = match[1];
         }
-
-        if(referrerId && referrerId !== String(userUniqueId)) {
-            let refListKey = 'az_my_referrals_' + referrerId;
-            let existingRefs = [];
-            try {
-                let savedRefs = localStorage.getItem(refListKey);
-                if(savedRefs) existingRefs = JSON.parse(savedRefs);
-            } catch (e) {}
-            
-            if(Array.isArray(existingRefs) && !existingRefs.some(r => r && r.id === userUniqueId)) {
-                existingRefs.push({
-                    id: userUniqueId,
-                    name: userFullName,
-                    balance: 0
-                });
-                try {
-                    localStorage.setItem(refListKey, JSON.stringify(existingRefs));
-                } catch (e) {}
-            }
-        }
+        if(referrerId === String(userUniqueId)) referrerId = null;
     } catch (e) {}
 
     let currentBalance = 0;
     let maxEnergy = 500;
     let currentEnergy = 500;
     let tapPower = 1;
-    let hourlyProfit = 0;
+    let hourlyProfit = 10;
+    let level = 1;
     let userName = userFullName;
     let savedWallet = '';
     let lastBonusTime = 0;
-
-    try {
-        currentBalance = parseFloat(localStorage.getItem('az_balance_' + userUniqueId)) || 0;
-        maxEnergy = parseInt(localStorage.getItem('az_maxEnergy_' + userUniqueId)) || 500;
-        currentEnergy = parseInt(localStorage.getItem('az_energy_' + userUniqueId)) || 500;
-        tapPower = parseInt(localStorage.getItem('az_tapPower_' + userUniqueId)) || 1;
-        hourlyProfit = parseInt(localStorage.getItem('az_hourlyProfit_' + userUniqueId)) || 0;
-        userName = localStorage.getItem('az_username_' + userUniqueId) || userFullName;
-        savedWallet = localStorage.getItem('az_saved_wallet_' + userUniqueId) || '';
-        lastBonusTime = parseInt(localStorage.getItem('az_lastBonusTime_' + userUniqueId)) || 0;
-    } catch (e) {}
-
-    function checkOfflineEarnings() {
-        try {
-            let lastTime = parseInt(localStorage.getItem('az_lastExitTime_' + userUniqueId)) || 0;
-            if (lastTime > 0 && hourlyProfit > 0) {
-                let currentTime = Date.now();
-                let elapsedSeconds = Math.floor((currentTime - lastTime) / 1000);
-                
-                if (elapsedSeconds > 10) { 
-                    let maxOfflineSeconds = 3 * 3600;
-                    if (elapsedSeconds > maxOfflineSeconds) {
-                        elapsedSeconds = maxOfflineSeconds;
-                    }
-
-                    let earnedOffline = (hourlyProfit / 3600) * elapsedSeconds;
-                    currentBalance += earnedOffline;
-                    saveGame();
-                }
-            }
-            try { localStorage.setItem('az_lastExitTime_' + userUniqueId, Date.now()); } catch (e) {}
-        } catch (e) {}
-    }
-
-    checkOfflineEarnings();
-
-    try {
-        let nameEl = document.getElementById('userName');
-        if(nameEl) nameEl.innerText = userName;
-        let nameInput = document.getElementById('nameInput');
-        if(nameInput) nameInput.value = userName;
-
-        let userIdLabel = document.getElementById('userIdLabel');
-        if(userIdLabel) userIdLabel.innerText = `ID: ${userUniqueId}`;
-
-        let botUsername = "AzcoinAzerbaycan_bot";
-        let personalRefLink = `https://t.me/${botUsername}/app?start=ref_${userUniqueId}`;
-        let refLinkInput = document.getElementById('refLinkInput');
-        if(refLinkInput) refLinkInput.value = personalRefLink;
-
-        let walletInput = document.getElementById('walletInput');
-        if(savedWallet && walletInput) { walletInput.value = savedWallet; walletInput.disabled = true; }
-    } catch (e) {}
 
     let cards = [
       {id: 1, name: "Qaraj", icon: "🚗", basePrice: 150, baseProfit: 30, level: 0},
@@ -432,7 +362,43 @@ safelyExecute(() => {
       {id: 30, name: "Sonsuzluq Bloku", icon: "♾️", basePrice: 25000, baseProfit: 1000000, level: 0}
     ];
 
+    // Supabase-dən istifadəçi məlumatlarını çəkək
     try {
+        let { data, error } = await supabaseClient.from('players').select('*').eq('id', userUniqueId).single();
+        if (!data) {
+            let newPlayer = {
+                id: userUniqueId,
+                name: userFullName,
+                balance: 0,
+                profit: 10,
+                level: 1,
+                referrer_id: referrerId
+            };
+            await supabaseClient.from('players').insert([newPlayer]);
+            
+            // Əgər dəvət edən varsa, ona bonus verə bilərik
+            if (referrerId) {
+                let { data: refUser } = await supabaseClient.from('players').select('balance').eq('id', referrerId).single();
+                if (refUser) {
+                    await supabaseClient.from('players').update({ balance: (refUser.balance || 0) + 1000 }).eq('id', referrerId);
+                }
+            }
+        } else {
+            currentBalance = data.balance || 0;
+            hourlyProfit = data.profit || 10;
+            level = data.level || 1;
+            userName = data.name || userFullName;
+        }
+    } catch (e) {}
+
+    // Lokal yaddaşdan əlavə parametrlər (enerji, klik gücü və s.)
+    try {
+        maxEnergy = parseInt(localStorage.getItem('az_maxEnergy_' + userUniqueId)) || 500;
+        currentEnergy = parseInt(localStorage.getItem('az_energy_' + userUniqueId)) || 500;
+        tapPower = parseInt(localStorage.getItem('az_tapPower_' + userUniqueId)) || 1;
+        savedWallet = localStorage.getItem('az_saved_wallet_' + userUniqueId) || '';
+        lastBonusTime = parseInt(localStorage.getItem('az_lastBonusTime_' + userUniqueId)) || 0;
+        
         let savedCards = localStorage.getItem('az_cards_' + userUniqueId);
         if(savedCards) {
             let parsedCards = JSON.parse(savedCards);
@@ -442,23 +408,29 @@ safelyExecute(() => {
         }
     } catch (e) {}
 
+    try {
+        let nameEl = document.getElementById('userName');
+        if(nameEl) nameEl.innerText = userName;
+        let nameInput = document.getElementById('nameInput');
+        if(nameInput) nameInput.value = userName;
+
+        let userIdLabel = document.getElementById('userIdLabel');
+        if(userIdLabel) userIdLabel.innerText = `ID: ${userUniqueId}`;
+
+        let botUsername = "AzcoinAzerbaycan_bot";
+        let personalRefLink = `https://t.me/${botUsername}/app?start=ref_${userUniqueId}`;
+        let refLinkInput = document.getElementById('refLinkInput');
+        if(refLinkInput) refLinkInput.value = personalRefLink;
+
+        let walletInput = document.getElementById('walletInput');
+        if(savedWallet && walletInput) { walletInput.value = savedWallet; walletInput.disabled = true; }
+    } catch (e) {}
+
     let tasksClaimed = { telegram: false, instagram: false, tiktok: false, youtube: false };
     try {
         let savedTasks = localStorage.getItem('az_tasksClaimed_' + userUniqueId);
-        if(savedTasks) {
-            let parsedTasks = JSON.parse(savedTasks);
-            if(parsedTasks && typeof parsedTasks === 'object') {
-                tasksClaimed = parsedTasks;
-            }
-        }
+        if(savedTasks) tasksClaimed = JSON.parse(savedTasks);
     } catch (e) {}
-
-    function getCurrentMasterLevel() {
-        let lastCard = cards.find(c => c.id === 30);
-        let currentCardLvl = lastCard ? lastCard.level : 0;
-        let totalBizLvl = cards.reduce((sum, c) => sum + (c.level || 0), 0);
-        return Math.max(1, Math.min(10, currentCardLvl || Math.floor(totalBizLvl / 5) + 1));
-    }
 
     window.updateUI = function() {
         safelyExecute(() => {
@@ -482,8 +454,7 @@ safelyExecute(() => {
             if(currentEnergyLimitTxt) currentEnergyLimitTxt.innerText = maxEnergy;
 
             updateRankSystem();
-            updateMyReferrerBalanceInStorage();
-            saveGame(); 
+            saveGameToSupabase(); 
         });
     };
 
@@ -491,129 +462,98 @@ safelyExecute(() => {
         safelyExecute(() => {
             let lastCard = cards.find(c => c.id === 30);
             let currentCardLvl = lastCard ? lastCard.level : 0;
-            let masterLvl = Math.min(10, Math.max(1, currentCardLvl));
-            let percentage = (currentCardLvl / 10) * 100;
+            level = Math.min(10, Math.max(1, currentCardLvl || Math.floor(currentBalance / 10000) + 1));
+            let percentage = (level * 10);
             if(percentage > 100) percentage = 100;
 
             let rankTitle = document.getElementById('rankTitle');
             let rankLevelText = document.getElementById('rankLevelText');
             let rankBarFill = document.getElementById('rankBarFill');
 
-            if(rankTitle) rankTitle.innerText = `Master 👑 Level ${masterLvl}/10`;
+            if(rankTitle) rankTitle.innerText = `Master 👑 Level ${level}/10`;
             if(rankLevelText) rankLevelText.innerText = `${Math.floor(percentage)}%`;
             if(rankBarFill) rankBarFill.style.width = `${percentage}%`;
         });
     }
 
-    function updateMyReferrerBalanceInStorage() {
-        safelyExecute(() => {
-            try {
-                for(let i=0; i<localStorage.length; i++) {
-                    let key = localStorage.key(i);
-                    if(key && key.startsWith && key.startsWith('az_my_referrals_')) {
-                        let list = JSON.parse(localStorage.getItem(key)) || [];
-                        let found = list.find(r => r && r.id === userUniqueId);
-                        if(found) {
-                            found.balance = currentBalance;
-                            localStorage.setItem(key, JSON.stringify(list));
-                        }
-                    }
-                }
-            } catch (e) {}
-        });
-    }
-
-    window.renderLeaderboard = function(sortBy = 'balance') {
-        safelyExecute(() => {
-            let container = document.getElementById('leaderboardListContainer');
-            if(!container) return;
-
-            let btnBal = document.getElementById('sortBalBtn');
-            let btnProf = document.getElementById('sortProfitBtn');
-            let btnLvl = document.getElementById('sortLvlBtn');
-
-            [btnBal, btnProf, btnLvl].forEach(b => {
-                if(b) {
-                    b.style.background = 'rgba(255,215,0,0.15)';
-                    b.style.color = '#ffd700';
-                    b.style.border = '1px solid #ffd700';
-                }
-            });
-
-            let activeBtn = sortBy === 'profit' ? btnProf : (sortBy === 'level' ? btnLvl : btnBal);
-            if(activeBtn) {
-                activeBtn.style.background = 'linear-gradient(#ffd700,#ffa000)';
-                activeBtn.style.color = '#111';
-                activeBtn.style.border = 'none';
-            }
-
-            let players = [
-                { id: '1049281', name: 'Elvin Məmmədov', balance: 485200, profit: 42500, level: 8, isMe: false },
-                { id: '2938471', name: 'Rəşad Bakılı', balance: 312900, profit: 31000, level: 7, isMe: false },
-                { id: '8472619', name: 'Nigar Əliyeva', balance: 245000, profit: 24800, level: 6, isMe: false },
-                { id: '5928374', name: 'Tural Qasımov', balance: 189400, profit: 19200, level: 5, isMe: false },
-                { id: '7182934', name: 'Kamran Həsənov', balance: 142000, profit: 15600, level: 5, isMe: false },
-                { id: '3948572', name: 'Aysel Kərimova', balance: 98500, profit: 11200, level: 4, isMe: false },
-                { id: '6253418', name: 'Murad Rzayev', balance: 64300, profit: 7800, level: 3, isMe: false },
-                { id: '9182736', name: 'Fərid Əhmədov', balance: 35100, profit: 4500, level: 2, isMe: false },
-                { id: '4758692', name: 'Səbinə Vəliyeva', balance: 15800, profit: 2100, level: 2, isMe: false }
-            ];
-
-            let myRefKey = 'az_my_referrals_' + userUniqueId;
-            try {
-                let savedFriends = JSON.parse(localStorage.getItem(myRefKey)) || [];
-                savedFriends.forEach(f => {
-                    if(f && f.id) {
-                        players.push({
-                            id: f.id,
-                            name: f.name || 'Dost',
-                            balance: f.balance || 0,
-                            profit: Math.floor((f.balance || 0) * 0.1),
-                            level: Math.max(1, Math.min(10, Math.floor((f.balance || 0) / 50000) + 1)),
-                            isMe: false
-                        });
-                    }
-                });
-            } catch (e) {}
-
-            players.push({
-                id: userUniqueId,
-                name: userName + " (Sən)",
+    // Supabase-ə məlumatları göndərən əsas funksiya
+    async function saveGameToSupabase() {
+        try {
+            await supabaseClient.from('players').update({
+                name: userName,
                 balance: Math.floor(currentBalance),
                 profit: hourlyProfit,
-                level: getCurrentMasterLevel(),
-                isMe: true
-            });
+                level: level,
+                updated_at: new Date().toISOString()
+            }).eq('id', userUniqueId);
+        } catch (e) {}
 
-            players.sort((a, b) => {
-                if (sortBy === 'profit') return b.profit - a.profit;
-                if (sortBy === 'level') return b.level - a.level || b.balance - a.balance;
-                return b.balance - a.balance;
-            });
+        try {
+            localStorage.setItem('az_balance_' + userUniqueId, currentBalance);
+            localStorage.setItem('az_energy_' + userUniqueId, currentEnergy);
+            localStorage.setItem('az_maxEnergy_' + userUniqueId, maxEnergy);
+            localStorage.setItem('az_tapPower_' + userUniqueId, tapPower);
+            localStorage.setItem('az_hourlyProfit_' + userUniqueId, hourlyProfit);
+            localStorage.setItem('az_cards_' + userUniqueId, JSON.stringify(cards));
+            localStorage.setItem('az_tasksClaimed_' + userUniqueId, JSON.stringify(tasksClaimed));
+        } catch (e) {}
+    }
+
+    // Real Liderlər Cədvəli (Supabase-dən çəkir)
+    window.renderLeaderboard = async function(sortBy = 'balance') {
+        let container = document.getElementById('leaderboardListContainer');
+        if(!container) return;
+        container.innerHTML = '<div style="text-align:center;color:#aaa;margin-top:20px;">Yüklənir...</div>';
+
+        let btnBal = document.getElementById('sortBalBtn');
+        let btnProf = document.getElementById('sortProfitBtn');
+        let btnLvl = document.getElementById('sortLvlBtn');
+
+        [btnBal, btnProf, btnLvl].forEach(b => {
+            if(b) {
+                b.style.background = 'rgba(255,215,0,0.15)';
+                b.style.color = '#ffd700';
+                b.style.border = '1px solid #ffd700';
+            }
+        });
+
+        let activeBtn = sortBy === 'profit' ? btnProf : (sortBy === 'level' ? btnLvl : btnBal);
+        if(activeBtn) {
+            activeBtn.style.background = 'linear-gradient(#ffd700,#ffa000)';
+            activeBtn.style.color = '#111';
+            activeBtn.style.border = 'none';
+        }
+
+        try {
+            let { data: players, error } = await supabaseClient.from('players').select('*').order(sortBy, { ascending: false }).limit(30);
+            if (error || !players) players = [];
 
             container.innerHTML = '';
             players.forEach((p, idx) => {
                 let rankNum = idx + 1;
                 let rankClass = rankNum === 1 ? 'top1' : (rankNum === 2 ? 'top2' : (rankNum === 3 ? 'top3' : ''));
                 let medal = rankNum === 1 ? '🥇' : (rankNum === 2 ? '🥈' : (rankNum === 3 ? '🥉' : rankNum));
+                let isMe = (String(p.id) === String(userUniqueId));
 
                 container.innerHTML += `
-                    <div class="leader-card ${p.isMe ? 'me' : ''}">
+                    <div class="leader-card ${isMe ? 'me' : ''}">
                         <div class="leader-left">
                             <div class="leader-rank ${rankClass}">${medal}</div>
                             <div class="leader-details">
-                                <b>${p.name}</b>
-                                <span>👑 Level ${p.level}/10 • ID: ${p.id}</span>
+                                <b>${p.name} ${isMe ? '(Sən)' : ''}</b>
+                                <span>👑 Level ${p.level || 1}/10 • ID: ${p.id}</span>
                             </div>
                         </div>
                         <div class="leader-right">
-                            <span class="leader-score">🪙 ${Math.floor(p.balance).toLocaleString()}</span>
-                            <span class="leader-profit">+${p.profit.toLocaleString()}/saat</span>
+                            <span class="leader-score">🪙 ${Math.floor(p.balance || 0).toLocaleString()}</span>
+                            <span class="leader-profit">+${(p.profit || 10).toLocaleString()}/saat</span>
                         </div>
                     </div>
                 `;
             });
-        });
+        } catch (e) {
+            container.innerHTML = '<div style="text-align:center;color:#ff5555;margin-top:20px;">Liderləri yükləmək mümkün olmadı.</div>';
+        }
     };
 
     window.renderTasks = function() {
@@ -653,33 +593,27 @@ safelyExecute(() => {
                 tasksClaimed[key] = true;
                 currentBalance += 1000;
                 window.updateUI();
-                saveGame();
                 window.renderTasks();
                 try { alert("Təbriklər! +1,000 AZC balansınıza əlavə olundu."); } catch (e) {}
             }
         });
     };
 
-    window.renderFriendsList = function() {
-        safelyExecute(() => {
-            let container = document.getElementById('friendsListContainer');
-            if(!container) return;
-            
-            let myRefKey = 'az_my_referrals_' + userUniqueId;
-            let friends = [];
-            try {
-                let savedFriends = localStorage.getItem(myRefKey);
-                if(savedFriends) friends = JSON.parse(savedFriends);
-            } catch (e) {}
+    // Real Dəvət Edilən Dostlar (Supabase-dən referrer_id üzrə çəkilir)
+    window.renderFriendsList = async function() {
+        let container = document.getElementById('friendsListContainer');
+        if(!container) return;
+        container.innerHTML = '<div style="text-align:center;color:#aaa;margin-top:20px;">Yüklənir...</div>';
 
-            if(!Array.isArray(friends) || friends.length === 0) {
+        try {
+            let { data: friends, error } = await supabaseClient.from('players').select('*').eq('referrer_id', userUniqueId);
+            if (error || !friends || friends.length === 0) {
                 container.innerHTML = `<div style="color:#aaa;font-size:12px;text-align:center;padding:15px;">Hələ dəvət etdiyin dost yoxdur. Linki kopyalayıb dostlarına at!</div>`;
                 return;
             }
 
             container.innerHTML = '';
             friends.forEach(f => {
-                if(!f) return;
                 container.innerHTML += `
                     <div class="friend-row">
                         <div>
@@ -692,7 +626,9 @@ safelyExecute(() => {
                     </div>
                 `;
             });
-        });
+        } catch (e) {
+            container.innerHTML = `<div style="color:#ff5555;font-size:12px;text-align:center;padding:15px;">Dostları yükləmək mümkün olmadı.</div>`;
+        }
     };
 
     window.renderCards = function() {
@@ -743,7 +679,7 @@ safelyExecute(() => {
                 currentBalance -= currentPrice;
                 hourlyProfit += card.baseProfit;
                 card.level += 1;
-                window.updateUI(); window.renderCards(); saveGame();
+                window.updateUI(); window.renderCards();
             } else { try { alert('Kafi qədər AZC balansınız yoxdur!'); } catch (e) {} }
         });
     };
@@ -782,7 +718,7 @@ safelyExecute(() => {
             lastBonusTime = now;
             try { localStorage.setItem('az_lastBonusTime_' + userUniqueId, lastBonusTime); } catch (e) {}
             currentBalance += 1000;
-            window.updateUI(); saveGame(); window.checkBonusTimer();
+            window.updateUI(); window.checkBonusTimer();
             try { alert("Gündəlik bonus götürüldü! +1,000 AZC"); } catch (e) {}
         });
     };
@@ -793,7 +729,7 @@ safelyExecute(() => {
             if (currentBalance >= price && tapPower < 50) {
                 currentBalance -= price;
                 tapPower += 1;
-                window.updateUI(); saveGame();
+                window.updateUI();
                 try { alert("Klik gücü artırıldı!"); } catch (e) {}
             } else {
                 try { alert("Kafi qədər balans yoxdur və ya maksimum gücə çatmısınız!"); } catch (e) {}
@@ -808,7 +744,7 @@ safelyExecute(() => {
                 currentBalance -= price;
                 maxEnergy += 500;
                 currentEnergy = maxEnergy;
-                window.updateUI(); saveGame();
+                window.updateUI();
                 try { alert("Enerji limiti artırıldı!"); } catch (e) {}
             } else {
                 try { alert("Kafi qədər balans yoxdur!"); } catch (e) {}
@@ -817,7 +753,7 @@ safelyExecute(() => {
     };
 
     window.saveNameOnly = function() {
-        safelyExecute(() => {
+        safelyExecute(async () => {
             let inp = document.getElementById('nameInput');
             if(!inp) return;
             let newName = inp.value.trim();
@@ -826,6 +762,7 @@ safelyExecute(() => {
                 let nEl = document.getElementById('userName');
                 if(nEl) nEl.innerText = userName;
                 try { localStorage.setItem('az_username_' + userUniqueId, userName); } catch (e) {}
+                await saveGameToSupabase();
                 try { alert('İstifadəçi adı yadda saxlanıldı!'); } catch (e) {}
             } else { try { alert("Ad boş ola bilməz!"); } catch (e) {} }
         });
@@ -875,28 +812,6 @@ safelyExecute(() => {
         });
     };
 
-    function saveGame() {
-        safelyExecute(() => {
-            try {
-                localStorage.setItem('az_balance_' + userUniqueId, currentBalance);
-                localStorage.setItem('az_energy_' + userUniqueId, currentEnergy);
-                localStorage.setItem('az_maxEnergy_' + userUniqueId, maxEnergy);
-                localStorage.setItem('az_tapPower_' + userUniqueId, tapPower);
-                localStorage.setItem('az_hourlyProfit_' + userUniqueId, hourlyProfit);
-                localStorage.setItem('az_cards_' + userUniqueId, JSON.stringify(cards));
-                localStorage.setItem('az_tasksClaimed_' + userUniqueId, JSON.stringify(tasksClaimed));
-                localStorage.setItem('az_lastExitTime_' + userUniqueId, Date.now());
-                updateMyReferrerBalanceInStorage();
-            } catch (e) {}
-        });
-    }
-
-    try {
-        window.addEventListener('beforeunload', function() {
-            saveGame();
-        });
-    } catch (e) {}
-
     try {
         const coinBtn = document.getElementById('coinBtn');
         const gameArea = document.getElementById('gameArea');
@@ -911,7 +826,6 @@ safelyExecute(() => {
                         currentEnergy -= tapPower;
                         currentBalance += tapPower;
                         window.updateUI();
-                        saveGame();
                         try {
                             const pop = document.createElement('div');
                             pop.className = 'pop-text';
@@ -942,7 +856,6 @@ safelyExecute(() => {
                 if (hourlyProfit > 0) { 
                     currentBalance += hourlyProfit / 3600; 
                     window.updateUI(); 
-                    saveGame(); 
                 }
             });
         }, 1000);
