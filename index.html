@@ -299,7 +299,7 @@ safelyExecute(async () => {
         } catch (e) {}
     }
 
-    // Referral ID yoxlanılması
+    // Referral ID yoxlanılması və qeydiyyatı
     let referrerId = null;
     try {
         const urlParams = new URLSearchParams(window.location.search);
@@ -362,36 +362,36 @@ safelyExecute(async () => {
       {id: 30, name: "Sonsuzluq Bloku", icon: "♾️", basePrice: 25000, baseProfit: 1000000, level: 0}
     ];
 
-    // Supabase-dən istifadəçi məlumatlarını çəkək
+    // Öncə lokal yaddaşdan (localStorage) mövcud balansı yoxlayaq ki, sıfırlanma olmasın
+    try {
+        let localBal = parseFloat(localStorage.getItem('az_balance_' + userUniqueId));
+        if (!isNaN(localBal)) currentBalance = localBal;
+    } catch (e) {}
+
+    // Supabase-dən istifadəçi məlumatını yoxlayaq
     try {
         let { data, error } = await supabaseClient.from('players').select('*').eq('id', userUniqueId).single();
         if (!data) {
             let newPlayer = {
                 id: userUniqueId,
                 name: userFullName,
-                balance: 0,
-                profit: 10,
+                balance: currentBalance,
+                profit: hourlyProfit,
                 level: 1,
                 referrer_id: referrerId
             };
             await supabaseClient.from('players').insert([newPlayer]);
-            
-            // Əgər dəvət edən varsa, ona bonus verə bilərik
-            if (referrerId) {
-                let { data: refUser } = await supabaseClient.from('players').select('balance').eq('id', referrerId).single();
-                if (refUser) {
-                    await supabaseClient.from('players').update({ balance: (refUser.balance || 0) + 1000 }).eq('id', referrerId);
-                }
-            }
         } else {
-            currentBalance = data.balance || 0;
+            // Əgər bazadakı balans lokal yaddaşdan çoxdursa, onu götür, yox əksinə, lokalda qazandığı qalıbsa onu qoru
+            if ((data.balance || 0) > currentBalance) {
+                currentBalance = data.balance || 0;
+            }
             hourlyProfit = data.profit || 10;
             level = data.level || 1;
             userName = data.name || userFullName;
         }
     } catch (e) {}
 
-    // Lokal yaddaşdan əlavə parametrlər (enerji, klik gücü və s.)
     try {
         maxEnergy = parseInt(localStorage.getItem('az_maxEnergy_' + userUniqueId)) || 500;
         currentEnergy = parseInt(localStorage.getItem('az_energy_' + userUniqueId)) || 500;
@@ -476,7 +476,6 @@ safelyExecute(async () => {
         });
     }
 
-    // Supabase-ə məlumatları göndərən əsas funksiya
     async function saveGameToSupabase() {
         try {
             await supabaseClient.from('players').update({
@@ -499,7 +498,6 @@ safelyExecute(async () => {
         } catch (e) {}
     }
 
-    // Real Liderlər Cədvəli (Supabase-dən çəkir)
     window.renderLeaderboard = async function(sortBy = 'balance') {
         let container = document.getElementById('leaderboardListContainer');
         if(!container) return;
@@ -599,7 +597,7 @@ safelyExecute(async () => {
         });
     };
 
-    // Real Dəvət Edilən Dostlar (Supabase-dən referrer_id üzrə çəkilir)
+    // Dostların real olaraq bazadan çəkilməsi (referrer_id vasitəsilə)
     window.renderFriendsList = async function() {
         let container = document.getElementById('friendsListContainer');
         if(!container) return;
@@ -608,7 +606,7 @@ safelyExecute(async () => {
         try {
             let { data: friends, error } = await supabaseClient.from('players').select('*').eq('referrer_id', userUniqueId);
             if (error || !friends || friends.length === 0) {
-                container.innerHTML = `<div style="color:#aaa;font-size:12px;text-align:center;padding:15px;">Hələ dəvət etdiyin dost yoxdur. Linki kopyalayıb dostlarına at!</div>`;
+                container.innerHTML = `<div style="color:#aaa;font-size:12px;text-align:center;padding:15px;">Hələ ki dəvət etdiyin dost yoxdur. Linki kopyalayıb dostlarına at!</div>`;
                 return;
             }
 
