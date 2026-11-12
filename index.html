@@ -8,8 +8,8 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *{box-sizing:border-box;user-select:none;-webkit-tap-highlight-color:transparent}
-body{margin:0;padding:0;font-family:'Segoe UI', Tahoma, Verdana, sans-serif;display:flex;justify-content:center;color:#fff;overflow-x:hidden;background:linear-gradient(135deg, #090d16 0%, #111e38 50%, #05070a 100%);height:100vh}
-.game-container{width:100%;max-width:480px;height:100vh;max-height:860px;position:relative;background:transparent;overflow:hidden;box-shadow:0 0 25px rgba(0,0,0,0.8);touch-action:manipulation}
+body{margin:0;padding:0;font-family:'Segoe UI', Tahoma, Verdana, sans-serif;display:flex;justify-content:center;color:#fff;overflow-x:hidden;background:url('https://images.unsplash.com/photo-1524813686514-a57563d77840?q=80&w=1000&auto=format&fit=crop') no-repeat center center fixed;background-size:cover;height:100vh}
+.game-container{width:100%;max-width:480px;height:100vh;max-height:860px;position:relative;background:rgba(5, 10, 20, 0.35);overflow:hidden;box-shadow:0 0 25px rgba(0,0,0,0.8);touch-action:manipulation}
 .user-profile-header{position:absolute;top:10px;left:6px;display:flex;align-items:center;gap:6px;z-index:25;background:rgba(10,25,40,0.85);border:1.5px solid #ffd700;border-radius:20px;padding:3px 8px 3px 3px;box-shadow:0 0 8px rgba(255,215,0,0.4);transform:scale(0.85);transform-origin:top left}
 .user-avatar{width:28px;height:28px;border-radius:50%;border:1.5px solid #ffd700;object-fit:cover;background:#111;display:flex;align-items:center;justify-content:center;font-weight:bold;color:#ffd700;font-size:12px}
 .user-info-text{display:flex;flex-direction:column;text-align:left}
@@ -19,7 +19,7 @@ body{margin:0;padding:0;font-family:'Segoe UI', Tahoma, Verdana, sans-serif;disp
 .user-id{font-size:8px;color:#aaa}
 .settings-btn{position:absolute;top:10px;right:6px;width:32px;height:32px;background:rgba(10,25,40,0.85);border:1.5px solid #ffd700;border-radius:50%;display:flex;justify-content:center;align-items:center;cursor:pointer;z-index:25;box-shadow:0 0 8px rgba(255,215,0,0.4);font-size:15px}
 
-.rank-container{position:absolute;top:52px;left:10px;right:10px;z-index:20;background:rgba(10,25,40,0.8);padding:5px 10px;border-radius:10px;border:1px solid rgba(255,215,0,0.3)}
+.rank-container{position:absolute;top:52px;left:10px;right:10px;z-index:20;background:rgba(10,25,40,0.85);padding:5px 10px;border-radius:10px;border:1px solid rgba(255,215,0,0.3)}
 .rank-info-row{display:flex;justify-content:space-between;font-size:11px;font-weight:bold;color:#ffea9f;margin-bottom:3px}
 .rank-bar-bg{width:100%;background:rgba(0,0,0,0.5);height:6px;border-radius:3px;overflow:hidden;border:1px solid rgba(255,215,0,0.3)}
 .rank-bar-fill{width:0%;height:100%;background:linear-gradient(90deg, #76ff03, #ffd700);border-radius:3px;transition: width 0.3s ease}
@@ -48,7 +48,7 @@ body{margin:0;padding:0;font-family:'Segoe UI', Tahoma, Verdana, sans-serif;disp
 .bottom-actions{position:absolute;bottom:12px;left:10px;right:10px;display:flex;justify-content:space-around;padding:0 5px;z-index:25}
 .action-badge{background:rgba(10,25,40,0.88);border:2px solid #ffd700;border-radius:12px;padding:8px 12px;font-size:11px;font-weight:bold;color:#ffea9f;cursor:pointer;box-shadow:0 0 10px rgba(255,215,0,0.4)}
 
-.modal-overlay{position:absolute;inset:0;background:radial-gradient(circle at center, rgba(10,30,50,0.95) 0%, rgba(3,10,18,0.98) 100%);display:none;flex-direction:column;z-index:200;padding:16px;overflow-y:auto}
+.modal-overlay{position:absolute;inset:0;background:rgba(5, 12, 22, 0.88);display:none;flex-direction:column;z-index:200;padding:16px;overflow-y:auto}
 .modal-header{display:flex;align-items:center;justify-content:space-between;border-bottom:2px solid rgba(255,215,0,0.4);padding-bottom:10px;margin-bottom:20px}
 .gold-back-btn{background:linear-gradient(180deg, #ffe58b 0%, #ffd700 50%, #cca100 100%);border:1.5px solid #fff;color:#111;font-weight:900;padding:8px 16px;border-radius:12px;cursor:pointer;font-size:12px}
 .modal-title{color:#ffd700;font-size:18px;font-weight:900;margin:0;text-align:center;flex-grow:1}
@@ -72,8 +72,6 @@ body{margin:0;padding:0;font-family:'Segoe UI', Tahoma, Verdana, sans-serif;disp
 .biz-btn{width:100%;padding:8px;border-radius:8px;border:none;font-weight:bold;font-size:11px;cursor:pointer}
 .biz-btn.active{background:rgba(255,215,0,0.2);color:#ffd700;border:1px solid #ffd700}
 .biz-btn.buy{background:linear-gradient(#ffd700,#ffa000);color:#111}
-.biz-btn.locked{background:#222;color:#666;cursor:not-allowed}
-.biz-unlock-text{font-size:9px;color:#ff5555;margin-top:4px;text-align:center}
 .inv-item{background:rgba(255,215,0,0.06);border:1px solid rgba(255,215,0,0.25);border-radius:12px;padding:10px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center}
 .inv-info{display:flex;align-items:center;gap:10px}
 .social-icon{font-size:22px}
@@ -222,7 +220,7 @@ body{margin:0;padding:0;font-family:'Segoe UI', Tahoma, Verdana, sans-serif;disp
     <div class="modal-header"><button class="gold-back-btn" onclick="closeModal('dailyModal')">⬅ Geri</button><h3 class="modal-title">🎁 Gündəlik Bonus</h3><div style="width:60px"></div></div>
     <div class="modal-body" style="text-align:center;padding-top:30px;">
       <p style="color:#ffea9f;font-size:14px;margin-bottom:15px;">Hər 24 saatdan bir daxil ol və 1,000 AZC qazan!</p>
-      <div id="bonusTimerStatus" style="font-size:12px;color:#76ff03;margin-bottom:15px;font-weight:bold;"></div>
+      <div id="bonusTimerStatus" style="font-size:12px;color:#76ff03;margin-bottom:15px;font-weight:bold;">✅ Bonusu indi götürə bilərsən!</div>
       <button class="inv-btn" id="bonusBtn" onclick="claimBonus()" style="padding:12px 25px;font-size:14px;width:100%;background:linear-gradient(#00e676,#00c853);color:#fff;">Götür (+1,000 AZC)</button>
     </div>
   </div>
@@ -306,13 +304,11 @@ async function initApp() {
         }
     } catch (e) {}
 
-    // Yerli yaddaşdan dərhal oxu ki, sıfırlanma görünməsin
     let localBal = localStorage.getItem('az_balance_' + userUniqueId);
     if (localBal !== null) {
         currentBalance = parseFloat(localBal);
     }
 
-    // Supabase-dən yoxla
     try {
         let { data, error } = await supabaseClient.from('players').select('*').eq('id', userUniqueId).single();
         if (!data) {
@@ -375,6 +371,24 @@ async function saveToSupabase() {
     } catch (e) {}
 }
 
+// Gündəlik Bonus Funksiyası
+function claimBonus() {
+    let lastBonus = localStorage.getItem('az_lastBonus_' + userUniqueId) || 0;
+    let now = new Date().getTime();
+    let twentyFourHours = 24 * 60 * 60 * 1000;
+
+    if (now - lastBonus < twentyFourHours) {
+        alert("Hələ 24 saat tamam olmayıb! Növbəti günü gözləyin.");
+        return;
+    }
+
+    currentBalance += 1000;
+    localStorage.setItem('az_lastBonus_' + userUniqueId, now);
+    updateUI();
+    alert("Təbriklər! Gündəlik bonus olaraq +1,000 AZC qazandınız.");
+    closeModal('dailyModal');
+}
+
 // Klik mexanizmi
 document.getElementById('coinBtn').addEventListener('pointerdown', function(e) {
     e.preventDefault();
@@ -395,7 +409,6 @@ document.getElementById('coinBtn').addEventListener('pointerdown', function(e) {
     }
 });
 
-// Modal idarəetməsi
 function openModal(id) {
     if(id === 'investModal') renderCards();
     if(id === 'tasksModal') renderTasks();
@@ -600,7 +613,6 @@ function copyRefLink() {
     alert("Dəvət linki kopyalandı!");
 }
 
-// Enerji və gəlir timerləri
 setInterval(() => {
     if (currentEnergy < maxEnergy) {
         currentEnergy = Math.min(maxEnergy, currentEnergy + 5);
@@ -616,7 +628,6 @@ setInterval(() => {
     }
 }, 1000);
 
-// Oyunu başlat
 initApp();
 </script>
 </body>
