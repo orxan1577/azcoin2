@@ -323,7 +323,7 @@ safelyExecute(async () => {
     let currentEnergy = 500;
     let tapPower = 1;
     let hourlyProfit = 10;
-    let level = 0; // Level 0-dan başlayır
+    let level = 0;
     let userName = userFullName;
     let savedWallet = '';
     let lastBonusTime = 0;
@@ -361,11 +361,29 @@ safelyExecute(async () => {
       {id: 30, name: "Sonsuzluq Bloku", icon: "♾️", basePrice: 25000, baseProfit: 1000000, level: 0}
     ];
 
+    // Öncə ən etibarlı lokal yaddaşdan kartları və saatlıq gəliri bərpa edirik
     try {
         let localBal = parseFloat(localStorage.getItem('az_balance_' + userUniqueId));
         if (!isNaN(localBal)) currentBalance = localBal;
+
+        let savedCards = localStorage.getItem('az_cards_' + userUniqueId);
+        if(savedCards) {
+            let parsedCards = JSON.parse(savedCards);
+            if(Array.isArray(parsedCards) && parsedCards.length === cards.length) {
+                cards = parsedCards;
+                // Kartların səviyyəsinə görə saatlıq gəliri dərhal yenidən hesablayırıq
+                let calcProfit = 10;
+                cards.forEach(c => {
+                    if(c.level > 0) {
+                        calcProfit += c.baseProfit * c.level;
+                    }
+                });
+                hourlyProfit = calcProfit;
+            }
+        }
     } catch (e) {}
 
+    // Supabase-dən məlumatı yoxlayırıq
     try {
         let { data, error } = await supabaseClient.from('players').select('*').eq('id', userUniqueId).single();
         if (!data) {
@@ -382,7 +400,10 @@ safelyExecute(async () => {
             if ((data.balance || 0) > currentBalance) {
                 currentBalance = data.balance || 0;
             }
-            hourlyProfit = data.profit || 10;
+            // Əgər bazadakı gəlir lokalda hesablanandan çoxdursa onu götürürük
+            if ((data.profit || 10) > hourlyProfit) {
+                hourlyProfit = data.profit;
+            }
             level = data.level !== undefined ? data.level : 0;
             userName = data.name || userFullName;
         }
@@ -394,14 +415,6 @@ safelyExecute(async () => {
         tapPower = parseInt(localStorage.getItem('az_tapPower_' + userUniqueId)) || 1;
         savedWallet = localStorage.getItem('az_saved_wallet_' + userUniqueId) || '';
         lastBonusTime = parseInt(localStorage.getItem('az_lastBonusTime_' + userUniqueId)) || 0;
-        
-        let savedCards = localStorage.getItem('az_cards_' + userUniqueId);
-        if(savedCards) {
-            let parsedCards = JSON.parse(savedCards);
-            if(Array.isArray(parsedCards) && parsedCards.length === cards.length) {
-                cards = parsedCards;
-            }
-        }
     } catch (e) {}
 
     try {
@@ -456,7 +469,6 @@ safelyExecute(async () => {
 
     function updateRankSystem() {
         safelyExecute(() => {
-            // Səviyyə həm xala, həm də kart səviyyələrinə görə avtomatik artır (0-dan 10-a qədər)
             let totalCardLvl = cards.reduce((sum, c) => sum + (c.level || 0), 0);
             level = Math.min(10, Math.floor(totalCardLvl / 6) + Math.floor(currentBalance / 20000));
             
@@ -495,7 +507,6 @@ safelyExecute(async () => {
         } catch (e) {}
     }
 
-    // Liderlər cədvəli düzəldildi: bazadan real oyunçuları xalına, gəlirinə və səviyyəsinə görə çəkir
     window.renderLeaderboard = async function(sortBy = 'balance') {
         let container = document.getElementById('leaderboardListContainer');
         if(!container) return;
@@ -675,9 +686,19 @@ safelyExecute(async () => {
             let currentPrice = Math.floor(card.basePrice * Math.pow(1.35, card.level));
             if (currentBalance >= currentPrice) {
                 currentBalance -= currentPrice;
-                hourlyProfit += card.baseProfit;
                 card.level += 1;
-                window.updateUI(); window.renderCards();
+                
+                // Saatlıq gəliri yenidən tam hesablayırıq (baza 10 + bütün kartların gəlirləri)
+                let newTotalProfit = 10;
+                cards.forEach(c => {
+                    if(c.level > 0) {
+                        newTotalProfit += c.baseProfit * c.level;
+                    }
+                });
+                hourlyProfit = newTotalProfit;
+
+                window.updateUI(); 
+                window.renderCards();
             } else { try { alert('Kafi qədər AZC balansınız yoxdur!'); } catch (e) {} }
         });
     };
