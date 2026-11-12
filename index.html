@@ -252,13 +252,19 @@ let userName = localStorage.getItem('az_username_' + userUniqueId) || userFullNa
 let savedWallet = localStorage.getItem('az_saved_wallet_' + userUniqueId) || '';
 let lastBonusTime = parseInt(localStorage.getItem('az_lastBonusTime_' + userUniqueId)) || 0;
 
-// OFFLINE QAZANC HESABLAMASI (İSTİFADƏÇİ ÇIXIB QAYIDANDA)
+// OFFLINE QAZANC HESABLAMASI (Maksimum 3 saat limit ilə)
 function checkOfflineEarnings() {
     let lastTime = parseInt(localStorage.getItem('az_lastExitTime_' + userUniqueId)) || 0;
     if (lastTime > 0 && hourlyProfit > 0) {
         let currentTime = Date.now();
         let elapsedSeconds = Math.floor((currentTime - lastTime) / 1000);
-        if (elapsedSeconds > 10) { // Əgər 10 saniyədən çox çölcə qalıbsa
+        
+        if (elapsedSeconds > 10) { 
+            let maxOfflineSeconds = 3 * 3600; // Maksimum 3 saat
+            if (elapsedSeconds > maxOfflineSeconds) {
+                elapsedSeconds = maxOfflineSeconds;
+            }
+
             let earnedOffline = (hourlyProfit / 3600) * elapsedSeconds;
             currentBalance += earnedOffline;
             saveGame();
@@ -612,7 +618,6 @@ function saveGame() {
     updateMyReferrerBalanceInStorage();
 }
 
-// Oyundan çıxanda vaxtı yadda saxla
 window.addEventListener('beforeunload', function() {
     saveGame();
 });
