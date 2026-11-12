@@ -299,7 +299,7 @@ safelyExecute(async () => {
         } catch (e) {}
     }
 
-    // Referral ID yoxlanılması və qeydiyyatı
+    // Referral ID yoxlanılması
     let referrerId = null;
     try {
         const urlParams = new URLSearchParams(window.location.search);
@@ -362,13 +362,13 @@ safelyExecute(async () => {
       {id: 30, name: "Sonsuzluq Bloku", icon: "♾️", basePrice: 25000, baseProfit: 1000000, level: 0}
     ];
 
-    // Öncə lokal yaddaşdan (localStorage) mövcud balansı yoxlayaq ki, sıfırlanma olmasın
+    // Əvvəlcə HƏMİŞƏ lokal yaddaşdan (localStorage) ən son balansı götürürük ki, sıfırlanma olmasın!
     try {
         let localBal = parseFloat(localStorage.getItem('az_balance_' + userUniqueId));
         if (!isNaN(localBal)) currentBalance = localBal;
     } catch (e) {}
 
-    // Supabase-dən istifadəçi məlumatını yoxlayaq
+    // Supabase-dən məlumatı yoxlayırıq
     try {
         let { data, error } = await supabaseClient.from('players').select('*').eq('id', userUniqueId).single();
         if (!data) {
@@ -382,7 +382,7 @@ safelyExecute(async () => {
             };
             await supabaseClient.from('players').insert([newPlayer]);
         } else {
-            // Əgər bazadakı balans lokal yaddaşdan çoxdursa, onu götür, yox əksinə, lokalda qazandığı qalıbsa onu qoru
+            // Əgər bazadakı balans lokal yaddaşdan yüksəkdirsə onu götürürük, əks halda lokalda qazandığımız qorunur
             if ((data.balance || 0) > currentBalance) {
                 currentBalance = data.balance || 0;
             }
@@ -478,16 +478,6 @@ safelyExecute(async () => {
 
     async function saveGameToSupabase() {
         try {
-            await supabaseClient.from('players').update({
-                name: userName,
-                balance: Math.floor(currentBalance),
-                profit: hourlyProfit,
-                level: level,
-                updated_at: new Date().toISOString()
-            }).eq('id', userUniqueId);
-        } catch (e) {}
-
-        try {
             localStorage.setItem('az_balance_' + userUniqueId, currentBalance);
             localStorage.setItem('az_energy_' + userUniqueId, currentEnergy);
             localStorage.setItem('az_maxEnergy_' + userUniqueId, maxEnergy);
@@ -495,6 +485,16 @@ safelyExecute(async () => {
             localStorage.setItem('az_hourlyProfit_' + userUniqueId, hourlyProfit);
             localStorage.setItem('az_cards_' + userUniqueId, JSON.stringify(cards));
             localStorage.setItem('az_tasksClaimed_' + userUniqueId, JSON.stringify(tasksClaimed));
+        } catch (e) {}
+
+        try {
+            await supabaseClient.from('players').update({
+                name: userName,
+                balance: Math.floor(currentBalance),
+                profit: hourlyProfit,
+                level: level,
+                updated_at: new Date().toISOString()
+            }).eq('id', userUniqueId);
         } catch (e) {}
     }
 
@@ -597,7 +597,6 @@ safelyExecute(async () => {
         });
     };
 
-    // Dostların real olaraq bazadan çəkilməsi (referrer_id vasitəsilə)
     window.renderFriendsList = async function() {
         let container = document.getElementById('friendsListContainer');
         if(!container) return;
