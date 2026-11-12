@@ -32,13 +32,17 @@ body{margin:0;padding:0;font-family:'Segoe UI', Tahoma, Verdana, sans-serif;disp
 .coin-click-area{position:absolute;top:35%;left:22%;width:56%;height:26%;cursor:pointer;z-index:30;border-radius:15px;background:radial-gradient(circle, rgba(255,215,0,0.2) 0%, rgba(0,0,0,0) 70%)}
 .coin-click-area:active{transform:scale(0.97)}
 
-.bottom-left-boost{position:absolute;top:64%;left:12px;background:rgba(10,25,40,0.9);border:1.5px solid #ffd700;border-radius:12px;padding:8px 12px;text-align:center;z-index:25;cursor:pointer;box-shadow:0 0 10px rgba(255,215,0,0.4)}
+.bottom-left-boost{position:absolute;top:63%;left:12px;background:rgba(10,25,40,0.9);border:1.5px solid #ffd700;border-radius:12px;padding:8px 12px;text-align:center;z-index:25;cursor:pointer;box-shadow:0 0 10px rgba(255,215,0,0.4)}
 .brb-txt{font-size:11px;color:#ffd700;font-weight:bold}
 .brb-sub{font-size:9px;color:#ffea9f;margin-top:2px}
 
-.bottom-right-energy{position:absolute;top:64%;right:12px;background:rgba(10,25,40,0.9);border:1.5px solid #ffd700;border-radius:12px;padding:8px 12px;text-align:right;z-index:25;cursor:pointer;box-shadow:0 0 10px rgba(255,215,0,0.4)}
+.bottom-right-energy{position:absolute;top:63%;right:12px;background:rgba(10,25,40,0.9);border:1.5px solid #ffd700;border-radius:12px;padding:8px 12px;text-align:right;z-index:25;cursor:pointer;box-shadow:0 0 10px rgba(255,215,0,0.4)}
 .ble-txt{font-size:10px;color:#76ff03;font-weight:bold}
 .sup-txt{font-size:9px;color:#ffea9f;margin-top:2px}
+
+.bottom-right-leaders{position:absolute;top:73%;right:12px;background:rgba(10,25,40,0.9);border:1.5px solid #ffd700;border-radius:12px;padding:7px 12px;text-align:center;z-index:25;cursor:pointer;box-shadow:0 0 10px rgba(255,215,0,0.4)}
+.brl-txt{font-size:11px;color:#ffd700;font-weight:bold}
+.brl-sub{font-size:8px;color:#ffea9f;margin-top:1px}
 
 .bottom-actions{position:absolute;bottom:12px;left:10px;right:10px;display:flex;justify-content:space-around;padding:0 5px;z-index:25}
 .action-badge{background:rgba(10,25,40,0.88);border:2px solid #ffd700;border-radius:12px;padding:8px 12px;font-size:11px;font-weight:bold;color:#ffea9f;cursor:pointer;box-shadow:0 0 10px rgba(255,215,0,0.4)}
@@ -78,6 +82,20 @@ body{margin:0;padding:0;font-family:'Segoe UI', Tahoma, Verdana, sans-serif;disp
 .inv-btn.done{background:linear-gradient(#1b5e20, #0f3812);color:#76ff03;border:1px solid #76ff03;cursor:pointer;}
 .friend-row{background:rgba(255,215,0,0.05);border:1px solid rgba(255,215,0,0.2);border-radius:10px;padding:8px 12px;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center;font-size:12px}
 .friend-row span{color:#ffea9f}
+
+.leader-card{background:rgba(12,28,45,0.9);border:1.5px solid rgba(255,215,0,0.35);border-radius:14px;padding:10px 12px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center}
+.leader-card.me{border-color:#76ff03;background:rgba(25,55,20,0.85);box-shadow:0 0 12px rgba(118,255,3,0.3)}
+.leader-left{display:flex;align-items:center;gap:10px}
+.leader-rank{width:28px;height:28px;border-radius:50%;background:rgba(255,215,0,0.2);border:1px solid #ffd700;display:flex;justify-content:center;align-items:center;font-weight:900;font-size:12px;color:#ffd700}
+.leader-rank.top1{background:linear-gradient(#ffd700,#ff9900);color:#111}
+.leader-rank.top2{background:linear-gradient(#e0e0e0,#9e9e9e);color:#111}
+.leader-rank.top3{background:linear-gradient(#cd7f32,#8d5524);color:#fff}
+.leader-details b{font-size:13px;color:#fff;display:block}
+.leader-details span{font-size:10px;color:#ffea9f}
+.leader-right{text-align:right}
+.leader-score{font-size:12px;font-weight:bold;color:#ffd700;display:block}
+.leader-profit{font-size:10px;color:#76ff03}
+
 .pop-text{position:absolute;left:50%;top:40%;transform:translate(-50%, -50%) scale(0.5);font-weight:900;font-size:45px;background:linear-gradient(180deg, #ffffff 0%, #ffdf73 30%, #ffd700 60%, #cc9900 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;pointer-events:none;z-index:999999;animation:float3DCenter 0.7s forwards}
 @keyframes float3DCenter{
   0%{opacity:0;transform:translate(-50%, -50%) scale(0.4) rotate(-5deg);filter:blur(5px);}
@@ -120,6 +138,11 @@ body{margin:0;padding:0;font-family:'Segoe UI', Tahoma, Verdana, sans-serif;disp
     <div class="sup-txt">⚡ Limit (+)</div>
   </div>
 
+  <div class="bottom-right-leaders" onclick="safelyExecute(() => openModal('leadersModal'))">
+    <div class="brl-txt">🏆 Liderlər</div>
+    <div class="brl-sub">Top Reytinq</div>
+  </div>
+
   <div class="coin-click-area" id="coinBtn"></div>
 
   <div class="bottom-actions">
@@ -127,6 +150,19 @@ body{margin:0;padding:0;font-family:'Segoe UI', Tahoma, Verdana, sans-serif;disp
     <div class="action-badge" onclick="safelyExecute(() => openModal('tasksModal'))">📋 Tapşırıq</div>
     <div class="action-badge" onclick="safelyExecute(() => openModal('investModal'))">🏙️ Biznes (30)</div>
     <div class="action-badge" onclick="safelyExecute(() => openModal('refModal'))">👥 Dostlar</div>
+  </div>
+
+  <!-- LİDERLƏR MODALI -->
+  <div class="modal-overlay" id="leadersModal">
+    <div class="modal-header"><button class="gold-back-btn" onclick="safelyExecute(() => closeModal('leadersModal'))">⬅ Geri</button><h3 class="modal-title">🏆 Liderlər Cədvəli</h3><div style="width:60px"></div></div>
+    <div class="modal-body">
+      <div style="display:flex;gap:6px;margin-bottom:14px;">
+        <button class="inv-btn" id="sortBalBtn" onclick="safelyExecute(() => renderLeaderboard('balance'))" style="flex:1;background:linear-gradient(#ffd700,#ffa000);color:#111;">🪙 Xal (Balans)</button>
+        <button class="inv-btn" id="sortProfitBtn" onclick="safelyExecute(() => renderLeaderboard('profit'))" style="flex:1;background:rgba(255,215,0,0.15);color:#ffd700;border:1px solid #ffd700;">📈 Saatlıq Gəlir</button>
+        <button class="inv-btn" id="sortLvlBtn" onclick="safelyExecute(() => renderLeaderboard('level'))" style="flex:1;background:rgba(255,215,0,0.15);color:#ffd700;border:1px solid #ffd700;">👑 Səviyyə</button>
+      </div>
+      <div id="leaderboardListContainer"></div>
+    </div>
   </div>
 
   <!-- AYARLAR MODALI -->
@@ -417,6 +453,13 @@ safelyExecute(() => {
         }
     } catch (e) {}
 
+    function getCurrentMasterLevel() {
+        let lastCard = cards.find(c => c.id === 30);
+        let currentCardLvl = lastCard ? lastCard.level : 0;
+        let totalBizLvl = cards.reduce((sum, c) => sum + (c.level || 0), 0);
+        return Math.max(1, Math.min(10, currentCardLvl || Math.floor(totalBizLvl / 5) + 1));
+    }
+
     window.updateUI = function() {
         safelyExecute(() => {
             let balFormatted = Math.floor(currentBalance).toLocaleString('az-AZ');
@@ -479,6 +522,99 @@ safelyExecute(() => {
             } catch (e) {}
         });
     }
+
+    window.renderLeaderboard = function(sortBy = 'balance') {
+        safelyExecute(() => {
+            let container = document.getElementById('leaderboardListContainer');
+            if(!container) return;
+
+            let btnBal = document.getElementById('sortBalBtn');
+            let btnProf = document.getElementById('sortProfitBtn');
+            let btnLvl = document.getElementById('sortLvlBtn');
+
+            [btnBal, btnProf, btnLvl].forEach(b => {
+                if(b) {
+                    b.style.background = 'rgba(255,215,0,0.15)';
+                    b.style.color = '#ffd700';
+                    b.style.border = '1px solid #ffd700';
+                }
+            });
+
+            let activeBtn = sortBy === 'profit' ? btnProf : (sortBy === 'level' ? btnLvl : btnBal);
+            if(activeBtn) {
+                activeBtn.style.background = 'linear-gradient(#ffd700,#ffa000)';
+                activeBtn.style.color = '#111';
+                activeBtn.style.border = 'none';
+            }
+
+            let players = [
+                { id: '1049281', name: 'Elvin Məmmədov', balance: 485200, profit: 42500, level: 8, isMe: false },
+                { id: '2938471', name: 'Rəşad Bakılı', balance: 312900, profit: 31000, level: 7, isMe: false },
+                { id: '8472619', name: 'Nigar Əliyeva', balance: 245000, profit: 24800, level: 6, isMe: false },
+                { id: '5928374', name: 'Tural Qasımov', balance: 189400, profit: 19200, level: 5, isMe: false },
+                { id: '7182934', name: 'Kamran Həsənov', balance: 142000, profit: 15600, level: 5, isMe: false },
+                { id: '3948572', name: 'Aysel Kərimova', balance: 98500, profit: 11200, level: 4, isMe: false },
+                { id: '6253418', name: 'Murad Rzayev', balance: 64300, profit: 7800, level: 3, isMe: false },
+                { id: '9182736', name: 'Fərid Əhmədov', balance: 35100, profit: 4500, level: 2, isMe: false },
+                { id: '4758692', name: 'Səbinə Vəliyeva', balance: 15800, profit: 2100, level: 2, isMe: false }
+            ];
+
+            let myRefKey = 'az_my_referrals_' + userUniqueId;
+            try {
+                let savedFriends = JSON.parse(localStorage.getItem(myRefKey)) || [];
+                savedFriends.forEach(f => {
+                    if(f && f.id) {
+                        players.push({
+                            id: f.id,
+                            name: f.name || 'Dost',
+                            balance: f.balance || 0,
+                            profit: Math.floor((f.balance || 0) * 0.1),
+                            level: Math.max(1, Math.min(10, Math.floor((f.balance || 0) / 50000) + 1)),
+                            isMe: false
+                        });
+                    }
+                });
+            } catch (e) {}
+
+            players.push({
+                id: userUniqueId,
+                name: userName + " (Sən)",
+                balance: Math.floor(currentBalance),
+                profit: hourlyProfit,
+                level: getCurrentMasterLevel(),
+                isMe: true
+            });
+
+            players.sort((a, b) => {
+                if (sortBy === 'profit') return b.profit - a.profit;
+                if (sortBy === 'level') return b.level - a.level || b.balance - a.balance;
+                return b.balance - a.balance;
+            });
+
+            container.innerHTML = '';
+            players.forEach((p, idx) => {
+                let rankNum = idx + 1;
+                let rankClass = rankNum === 1 ? 'top1' : (rankNum === 2 ? 'top2' : (rankNum === 3 ? 'top3' : ''));
+                let medal = rankNum === 1 ? '🥇' : (rankNum === 2 ? '🥈' : (rankNum === 3 ? '🥉' : rankNum));
+
+                container.innerHTML += `
+                    <div class="leader-card ${p.isMe ? 'me' : ''}">
+                        <div class="leader-left">
+                            <div class="leader-rank ${rankClass}">${medal}</div>
+                            <div class="leader-details">
+                                <b>${p.name}</b>
+                                <span>👑 Level ${p.level}/10 • ID: ${p.id}</span>
+                            </div>
+                        </div>
+                        <div class="leader-right">
+                            <span class="leader-score">🪙 ${Math.floor(p.balance).toLocaleString()}</span>
+                            <span class="leader-profit">+${p.profit.toLocaleString()}/saat</span>
+                        </div>
+                    </div>
+                `;
+            });
+        });
+    };
 
     window.renderTasks = function() {
         safelyExecute(() => {
@@ -829,6 +965,7 @@ safelyExecute(() => {
             if(id === 'dailyModal') window.checkBonusTimer();
             if(id === 'tasksModal') window.renderTasks();
             if(id === 'refModal') window.renderFriendsList();
+            if(id === 'leadersModal') window.renderLeaderboard('balance');
             let m = document.getElementById(id);
             if(m) m.style.display = 'flex'; 
         });
