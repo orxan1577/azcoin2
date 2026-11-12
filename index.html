@@ -217,19 +217,18 @@ tg.expand();
 
 let telegramUser = tg.initDataUnsafe?.user;
 
-// KÖHNƏ QEYDİYYATLARI QORUYAN MƏXMİSİ İD SİSTEMİ
-// Əvvəl Telegram İD-ni yoxlayır, yoxdursa əvvəlcədən yaddaşda qalan 'az_fixed_uid' və ya 'az_saved_uid'-i tapır
-let userUniqueId = (telegramUser && telegramUser.id) ? telegramUser.id : null;
+// KÖHNƏ QEYDİYYATLARI QORUYAN MƏXMİSİ İD SİSTEMİ (QƏTİ BƏRPA)
+let userUniqueId = null;
 
-if (!userUniqueId) {
-    // Brauzerin yaddaşında əvvəldən qalan oyunçu İD-sini axtarırıq ki, xallar silinməsin
-    let allKeys = Object.keys(localStorage);
-    let existingBalanceKey = allKeys.find(k => k.startsWith('az_balance_'));
-    if (existingBalanceKey) {
-        userUniqueId = existingBalanceKey.replace('az_balance_', '');
-    } else {
-        userUniqueId = localStorage.getItem('az_fixed_uid') || localStorage.getItem('az_saved_uid') || 'player_' + Math.floor(100000 + Math.random() * 900000);
-    }
+let allKeys = Object.keys(localStorage);
+let existingBalanceKey = allKeys.find(k => k.startsWith('az_balance_'));
+
+if (existingBalanceKey) {
+    userUniqueId = existingBalanceKey.replace('az_balance_', '');
+} else if (telegramUser && telegramUser.id) {
+    userUniqueId = telegramUser.id;
+} else {
+    userUniqueId = localStorage.getItem('az_fixed_uid') || localStorage.getItem('az_saved_uid') || 'player_' + Math.floor(100000 + Math.random() * 900000);
 }
 
 localStorage.setItem('az_fixed_uid', userUniqueId);
@@ -270,7 +269,6 @@ let userName = localStorage.getItem('az_username_' + userUniqueId) || userFullNa
 let savedWallet = localStorage.getItem('az_saved_wallet_' + userUniqueId) || '';
 let lastBonusTime = parseInt(localStorage.getItem('az_lastBonusTime_' + userUniqueId)) || 0;
 
-// OFFLINE QAZANC HESABLAMASI (Maksimum 3 saat limit ilə)
 function checkOfflineEarnings() {
     let lastTime = parseInt(localStorage.getItem('az_lastExitTime_' + userUniqueId)) || 0;
     if (lastTime > 0 && hourlyProfit > 0) {
@@ -278,7 +276,7 @@ function checkOfflineEarnings() {
         let elapsedSeconds = Math.floor((currentTime - lastTime) / 1000);
         
         if (elapsedSeconds > 10) { 
-            let maxOfflineSeconds = 3 * 3600; // Maksimum 3 saat
+            let maxOfflineSeconds = 3 * 3600;
             if (elapsedSeconds > maxOfflineSeconds) {
                 elapsedSeconds = maxOfflineSeconds;
             }
