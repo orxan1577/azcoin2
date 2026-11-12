@@ -164,9 +164,7 @@ body{margin:0;padding:0;font-family:'Segoe UI', Tahoma, Verdana, sans-serif;disp
       <button class="inv-btn" onclick="copyRefLink()" style="width:100%;padding:10px;font-size:13px;background:linear-gradient(#00e676,#00c853);color:#fff;margin-bottom:15px;">Linki Kopyala</button>
       
       <h4 style="color:#ffd700;text-align:left;margin-bottom:8px;font-size:13px;">Dəvət etdiyin dostlar:</h4>
-      <div id="friendsListContainer" style="max-height:220px;overflow-y:auto;text-align:left;">
-        <!-- Dəvət olunan dostlar burada görünəcək -->
-      </div>
+      <div id="friendsListContainer" style="max-height:220px;overflow-y:auto;text-align:left;"></div>
     </div>
   </div>
 
@@ -179,9 +177,7 @@ body{margin:0;padding:0;font-family:'Segoe UI', Tahoma, Verdana, sans-serif;disp
   <!-- TAPŞIRIQLAR MODALI -->
   <div class="modal-overlay" id="tasksModal">
     <div class="modal-header"><button class="gold-back-btn" onclick="closeModal('tasksModal')">⬅ Geri</button><h3 class="modal-title">📋 Sosial Tapşırıqlar</h3><div style="width:60px"></div></div>
-    <div class="modal-body" id="tasksContainerList">
-      <!-- Dinamik yüklənəcək -->
-    </div>
+    <div class="modal-body" id="tasksContainerList"></div>
   </div>
 
   <!-- BONUS MODALI -->
@@ -256,6 +252,23 @@ let userName = localStorage.getItem('az_username_' + userUniqueId) || userFullNa
 let savedWallet = localStorage.getItem('az_saved_wallet_' + userUniqueId) || '';
 let lastBonusTime = parseInt(localStorage.getItem('az_lastBonusTime_' + userUniqueId)) || 0;
 
+// OFFLINE QAZANC HESABLAMASI (İSTİFADƏÇİ ÇIXIB QAYIDANDA)
+function checkOfflineEarnings() {
+    let lastTime = parseInt(localStorage.getItem('az_lastExitTime_' + userUniqueId)) || 0;
+    if (lastTime > 0 && hourlyProfit > 0) {
+        let currentTime = Date.now();
+        let elapsedSeconds = Math.floor((currentTime - lastTime) / 1000);
+        if (elapsedSeconds > 10) { // Əgər 10 saniyədən çox çölcə qalıbsa
+            let earnedOffline = (hourlyProfit / 3600) * elapsedSeconds;
+            currentBalance += earnedOffline;
+            saveGame();
+        }
+    }
+    localStorage.setItem('az_lastExitTime_' + userUniqueId, Date.now());
+}
+
+checkOfflineEarnings();
+
 let nameEl = document.getElementById('userName');
 if(nameEl) nameEl.innerText = userName;
 let nameInput = document.getElementById('nameInput');
@@ -297,12 +310,12 @@ let cards = JSON.parse(localStorage.getItem('az_cards_' + userUniqueId)) || [
   {id: 22, name: "Kvant Laboratoriyası", icon: "🔮", basePrice: 12850, baseProfit: 3000, level: 0},
   {id: 23, name: "Metaverse Şəhəri", icon: "🌐", basePrice: 14000, baseProfit: 3500, level: 0},
   {id: 24, name: "Süni İntellekt", icon: "🤖", basePrice: 15200, baseProfit: 4200, level: 0},
-  {id: 25, levelMax: 20, name: "UFO Texnologiyaları", icon: "🛸", basePrice: 16450, baseProfit: 5000, level: 0},
+  {id: 25, name: "UFO Texnologiyaları", icon: "🛸", basePrice: 16450, baseProfit: 5000, level: 0},
   {id: 26, name: "Qalaktik Liman", icon: "🌌", basePrice: 17750, baseProfit: 6000, level: 0},
   {id: 27, name: "Enerji Reyti", icon: "⚡", basePrice: 19100, baseProfit: 7500, level: 0},
   {id: 28, name: "Dünya İmperiyası", icon: "👑", basePrice: 20500, baseProfit: 10000, level: 0},
   {id: 29, name: "Zaman Maşını", icon: "💫", basePrice: 21950, baseProfit: 15000, level: 0},
-  {id: 30, maxCardLevel: 10, name: "Sonsuzluq Bloku", icon: "♾️", basePrice: 25000, baseProfit: 1000000, level: 0}
+  {id: 30, name: "Sonsuzluq Bloku", icon: "♾️", basePrice: 25000, baseProfit: 1000000, level: 0}
 ];
 
 let tasksClaimed = JSON.parse(localStorage.getItem('az_tasksClaimed_' + userUniqueId)) || {
@@ -337,10 +350,9 @@ function updateUI() {
 }
 
 function updateRankSystem() {
-    // Ən sonuncu biznesin (id: 30, Sonsuzluq Bloku) səviyyəsi əsasında Master Level hesablanır (Maksimum 10)
     let lastCard = cards.find(c => c.id === 30);
     let currentCardLvl = lastCard ? lastCard.level : 0;
-    let masterLvl = Math.min(10, Math.max(1, currentCardLvl)); // 0-da olanda 1 göstərir, 10 olanda 10 olur
+    let masterLvl = Math.min(10, Math.max(1, currentCardLvl));
     let percentage = (currentCardLvl / 10) * 100;
     if(percentage > 100) percentage = 100;
 
@@ -381,13 +393,7 @@ function renderTasks() {
     container.innerHTML = '';
     tasksData.forEach(t => {
         let isClaimed = tasksClaimed[t.key];
-        let btnHTML = '';
-
-        if (!isClaimed) {
-            btnHTML = `<button class="inv-btn" onclick="handleTaskAction('${t.key}', '${t.url}')">${t.subText}</button>`;
-        } else {
-            btnHTML = `<button class="inv-btn done" onclick="window.open('${t.url}', '_blank')">${t.doneText}</button>`;
-        }
+        let btnHTML = !isClaimed ? `<button class="inv-btn" onclick="handleTaskAction('${t.key}', '${t.url}')">${t.subText}</button>` : `<button class="inv-btn done" onclick="window.open('${t.url}', '_blank')">${t.doneText}</button>`;
 
         container.innerHTML += `
           <div class="inv-item">
@@ -590,8 +596,6 @@ function copyRefLink() {
             } else {
                 alert("Dəvət linki kopyalandı!");
             }
-        }).catch(err => {
-            alert("Kopyalamaq alınmadı.");
         });
     }
 }
@@ -604,8 +608,14 @@ function saveGame() {
     localStorage.setItem('az_hourlyProfit_' + userUniqueId, hourlyProfit);
     localStorage.setItem('az_cards_' + userUniqueId, JSON.stringify(cards));
     localStorage.setItem('az_tasksClaimed_' + userUniqueId, JSON.stringify(tasksClaimed));
+    localStorage.setItem('az_lastExitTime_' + userUniqueId, Date.now());
     updateMyReferrerBalanceInStorage();
 }
+
+// Oyundan çıxanda vaxtı yadda saxla
+window.addEventListener('beforeunload', function() {
+    saveGame();
+});
 
 const coinBtn = document.getElementById('coinBtn');
 const gameArea = document.getElementById('gameArea');
