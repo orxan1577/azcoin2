@@ -217,15 +217,12 @@ tg.expand();
 
 let telegramUser = tg.initDataUnsafe?.user;
 
-// İD qoruma mexanizmi: Əvvəl Telegram-dan yoxla, yoxdursa localStorage-də ən son işlənən İD-ni götür
-let userUniqueId = (telegramUser && telegramUser.id) ? telegramUser.id : localStorage.getItem('az_saved_uid');
-if (!userUniqueId) {
-    userUniqueId = localStorage.getItem('az_last_used_id') || Math.floor(100000 + Math.random() * 900000);
-}
+// QƏTİ İD MÜƏYYƏNLƏŞDİRMƏSİ (Əgər Telegram İD verməsə, mövcud yaddaşdakı son İD-ni və ya daimi unikal oyunçu İD-sini götürür)
+let userUniqueId = (telegramUser && telegramUser.id) ? telegramUser.id : (localStorage.getItem('az_permanent_uid') || localStorage.getItem('az_saved_uid') || 'player_' + Math.floor(100000 + Math.random() * 900000));
+localStorage.setItem('az_permanent_uid', userUniqueId);
 localStorage.setItem('az_saved_uid', userUniqueId);
-localStorage.setItem('az_last_used_id', userUniqueId);
 
-let userFullName = telegramUser ? (telegramUser.first_name + (telegramUser.last_name ? " " + telegramUser.last_name : "")) : "Oyunçu";
+let userFullName = telegramUser ? (telegramUser.first_name + (telegramUser.last_name ? " " + telegramUser.last_name : "")) : (localStorage.getItem('az_username_' + userUniqueId) || "Oyunçu");
 
 const urlParams = new URLSearchParams(window.location.search);
 let startParam = tg.initDataUnsafe?.start_param || "";
@@ -361,7 +358,7 @@ function updateUI() {
 
     updateRankSystem();
     updateMyReferrerBalanceInStorage();
-    saveGame(); // Hər UI yenilənəndə məlumatlar anında yaddaşa yazılır
+    saveGame(); 
 }
 
 function updateRankSystem() {
