@@ -217,13 +217,23 @@ tg.expand();
 
 let telegramUser = tg.initDataUnsafe?.user;
 
-// DƏMİR KİMİ İD MÜƏYYƏNLƏŞDİRMƏSİ (Əgər Telegram İD verməzsə, həmişə sabit yaddaşdakı İD-ni oxuyur)
-let userUniqueId = (telegramUser && telegramUser.id) ? telegramUser.id : localStorage.getItem('az_fixed_uid');
+// KÖHNƏ QEYDİYYATLARI QORUYAN MƏXMİSİ İD SİSTEMİ
+// Əvvəl Telegram İD-ni yoxlayır, yoxdursa əvvəlcədən yaddaşda qalan 'az_fixed_uid' və ya 'az_saved_uid'-i tapır
+let userUniqueId = (telegramUser && telegramUser.id) ? telegramUser.id : null;
+
 if (!userUniqueId) {
-    // Əgər heç yoxdursa, köhnə yaddaşdakılardan birini yoxla və ya daimi yeni ID yarat
-    userUniqueId = localStorage.getItem('az_saved_uid') || localStorage.getItem('az_last_used_id') || 'player_777777';
+    // Brauzerin yaddaşında əvvəldən qalan oyunçu İD-sini axtarırıq ki, xallar silinməsin
+    let allKeys = Object.keys(localStorage);
+    let existingBalanceKey = allKeys.find(k => k.startsWith('az_balance_'));
+    if (existingBalanceKey) {
+        userUniqueId = existingBalanceKey.replace('az_balance_', '');
+    } else {
+        userUniqueId = localStorage.getItem('az_fixed_uid') || localStorage.getItem('az_saved_uid') || 'player_' + Math.floor(100000 + Math.random() * 900000);
+    }
 }
+
 localStorage.setItem('az_fixed_uid', userUniqueId);
+localStorage.setItem('az_saved_uid', userUniqueId);
 
 let userFullName = telegramUser ? (telegramUser.first_name + (telegramUser.last_name ? " " + telegramUser.last_name : "")) : (localStorage.getItem('az_username_' + userUniqueId) || "Oyunçu");
 
