@@ -63,14 +63,18 @@ body{margin:0;padding:0;font-family:'Segoe UI', Tahoma, Verdana, sans-serif;disp
 .flag-name{font-size:11px;color:#fff;font-weight:bold}
 .settings-input{width:100%;padding:14px 16px;border-radius:14px;border:2px solid #ffd700;background:#03080f;color:#ffe58b;font-size:16px;font-weight:bold;outline:none;margin-bottom:12px}
 .gold-3d-btn{width:100%;height:50px;background:linear-gradient(180deg, #1f1b0a 0%, #120e03 50%, #080601 100%);border:2px solid #ffd700;border-radius:14px;color:#ffd700;font-weight:900;font-size:15px;cursor:pointer;text-transform:uppercase;margin-top:5px}
+
 .cards-grid{display:grid;grid-template-columns:repeat(2, 1fr);gap:10px}
 .biz-card{background:rgba(12,25,38,0.9);border:1.5px solid #ffd700;border-radius:14px;padding:10px;text-align:left;display:flex;flex-direction:column;justify-content:space-between;box-shadow:0 0 10px rgba(255,215,0,0.2)}
+.biz-card.locked{border-color:#555;background:rgba(20,20,25,0.7);opacity:0.75;box-shadow:none}
 .biz-lvl{font-size:10px;color:#ffea9f;margin-bottom:4px;font-weight:bold}
 .biz-income{font-size:13px;font-weight:bold;color:#76ff03;margin-bottom:4px}
 .biz-price{font-size:10px;color:#ccc;margin-bottom:10px}
 .biz-btn{width:100%;padding:8px;border-radius:8px;border:none;font-weight:bold;font-size:11px;cursor:pointer}
 .biz-btn.active{background:rgba(255,215,0,0.2);color:#ffd700;border:1px solid #ffd700}
 .biz-btn.buy{background:linear-gradient(#ffd700,#ffa000);color:#111}
+.biz-btn.locked{background:#333;color:#888;cursor:not-allowed;border:1px solid #444}
+
 .inv-item{background:rgba(255,215,0,0.06);border:1px solid rgba(255,215,0,0.25);border-radius:12px;padding:10px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center}
 .inv-info{display:flex;align-items:center;gap:10px}
 .social-icon{font-size:22px}
@@ -308,6 +312,17 @@ async function initApp() {
         currentBalance = parseFloat(localBal);
     }
 
+    // Kart səviyyələrini də localStorage-dan bərpa edək
+    let savedCards = localStorage.getItem('az_cards_' + userUniqueId);
+    if (savedCards) {
+        try {
+            let parsed = JSON.parse(savedCards);
+            cards.forEach((c, idx) => {
+                if (parsed[idx] !== undefined) c.level = parsed[idx];
+            });
+        } catch(e) {}
+    }
+
     try {
         let { data, error } = await supabaseClient.from('players').select('*').eq('id', userUniqueId).single();
         if (!data) {
@@ -355,6 +370,7 @@ function updateUI() {
     document.getElementById('rankBarFill').style.width = `${percentage}%`;
 
     localStorage.setItem('az_balance_' + userUniqueId, currentBalance);
+    localStorage.setItem('az_cards_' + userUniqueId, JSON.stringify(cards.map(c => c.level)));
     saveToSupabase();
 }
 
@@ -486,18 +502,41 @@ function renderCards() {
     let container = document.getElementById('cardsListContainer');
     if(!container) return;
     container.innerHTML = '';
-    cards.forEach((card) => {
+    
+    cards.forEach((card, index) => {
         let currentPrice = Math.floor(card.basePrice * Math.pow(1.35, card.level));
         let currentProfit = card.baseProfit * (card.level + 1);
+
+        // KİLİD MƏNTİQİ: 
+        // 1-ci kart həmişə açıqdır. 
+        // N-ci kartı açmaq üçün (N-1)-ci kartın səviyyəsi ən azı N olmalıdır (məsələn: 2-ci kart üçün 1-ci kart Lv.2 olmalıdır, 3-cü kart üçün 2-ci kart Lv.3 olmalıdır və s.)
+        let isLocked = false;
+        let requiredLevel = index + 1; // 2-ci kart üçün 2, 3-cü kart üçün 3 və s.
+        if (index > 0) {
+            let prevCard = cards[index - 1];
+            if (prevCard.level < requiredLevel) {
+                isLocked = true;
+            }
+        }
+
+        let btnClass = 'buy';
+        let btnText = card.level === 0 ? 'AL' : 'Yüksəlt';
+        if (isLocked) {
+            btnClass = 'locked';
+            btnText = `🔒 Əvvəlki kartı Lv.${requiredLevel} et`;
+        } else if (card.level > 0) {
+            btnClass = 'active';
+        }
+
         container.innerHTML += `
-          <div class="biz-card">
+          <div class="biz-card ${isLocked ? 'locked' : ''}">
             <div>
               <div class="biz-lvl">Lvl ${card.id} • ${card.icon} ${card.name} (Lv.${card.level})</div>
               <div class="biz-income">+${currentProfit.toLocaleString()} AZC/saat</div>
-              <div class="biz-price">Qiymət: ${currentPrice.toLocaleString()} AZC</div>
+              <div class="biz-price">${isLocked ? `<span style="color:#ff5555;">Tələb: Əvvəlki kart Lv.${requiredLevel} olsun</span>` : `Qiymət: ${currentPrice.toLocaleString()} AZC`}</div>
             </div>
             <div>
-              <button class="biz-btn ${card.level === 0 ? 'buy' : 'active'}" onclick="upgradeCard(${card.id})">${card.level === 0 ? 'AL' : 'Yüksəlt'}</button>
+              <button class="biz-btn ${btnClass}" onclick="upgradeCard(${card.id})">${btnText}</button>
             </div>
           </div>
         `;
@@ -505,8 +544,20 @@ function renderCards() {
 }
 
 function upgradeCard(id) {
-    let card = cards.find(c => c.id === id);
-    if(!card) return;
+    let cardIdx = cards.findIndex(c => c.id === id);
+    if(cardIdx === -1) return;
+    let card = cards[cardIdx];
+
+    // Kilid yoxlaması
+    if (cardIdx > 0) {
+        let requiredLevel = cardIdx + 1;
+        let prevCard = cards[cardIdx - 1];
+        if (prevCard.level < requiredLevel) {
+            alert(`Bu biznesi açmaq üçün əvvəlki biznes (${prevCard.name}) ən azı ${requiredLevel}-ci səviyyə olmalıdır!`);
+            return;
+        }
+    }
+
     let currentPrice = Math.floor(card.basePrice * Math.pow(1.35, card.level));
     if (currentBalance >= currentPrice) {
         currentBalance -= currentPrice;
