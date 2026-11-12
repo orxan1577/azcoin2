@@ -7,8 +7,8 @@
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <style>
 *{box-sizing:border-box;user-select:none;-webkit-tap-highlight-color:transparent}
-body{margin:0;padding:0;font-family:'Segoe UI', Tahoma, Verdana, sans-serif;display:flex;justify-content:center;color:#fff;overflow-x:hidden;background:#050f1a}
-.game-container{width:100%;max-width:480px;height:100vh;max-height:860px;position:relative;background:#050f1a;overflow:hidden;box-shadow:0 0 25px rgba(0,0,0,0.8);touch-action:manipulation}
+body{margin:0;padding:0;font-family:'Segoe UI', Tahoma, Verdana, sans-serif;display:flex;justify-content:center;color:#fff;overflow-x:hidden;background:#050f1a url('bg.png') no-repeat center center fixed;background-size:cover}
+.game-container{width:100%;max-width:480px;height:100vh;max-height:860px;position:relative;background:rgba(5,15,26,0.85);overflow:hidden;box-shadow:0 0 25px rgba(0,0,0,0.8);touch-action:manipulation}
 .user-profile-header{position:absolute;top:10px;left:6px;display:flex;align-items:center;gap:6px;z-index:25;background:rgba(10,25,40,0.85);border:1.5px solid #ffd700;border-radius:20px;padding:3px 8px 3px 3px;box-shadow:0 0 8px rgba(255,215,0,0.4);transform:scale(0.85);transform-origin:top left}
 .user-avatar{width:28px;height:28px;border-radius:50%;border:1.5px solid #ffd700;object-fit:cover;background:#111}
 .user-info-text{display:flex;flex-direction:column;text-align:left}
@@ -216,7 +216,7 @@ function safelyExecute(fn) {
     try {
         fn();
     } catch (e) {
-        console.error("Xəta baş verdi, lakin oyun davam edir:", e);
+        console.error("Xəta baş verdi:", e);
     }
 }
 
@@ -231,12 +231,9 @@ safelyExecute(() => {
         if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
             telegramUser = tg.initDataUnsafe.user;
         }
-    } catch (e) {
-        console.warn("Telegram istifadəçi məlumatı oxuna bilmədi.");
-    }
+    } catch (e) {}
 
     let userUniqueId = null;
-
     try {
         let allKeys = Object.keys(localStorage);
         let existingBalanceKey = allKeys.find(k => k && k.startsWith && k.startsWith('az_balance_'));
@@ -644,7 +641,7 @@ safelyExecute(() => {
             let twentyFourHours = 24 * 60 * 60 * 1000;
             if (lastBonusTime !== 0 && (now - lastBonusTime) < twentyFourHours) {
                 try { alert("Hələ 24 saat tamam olmayıb!"); } catch (e) {}
-                returnsf;
+                return;
             }
             lastBonusTime = now;
             try { localStorage.setItem('az_lastBonusTime_' + userUniqueId, lastBonusTime); } catch (e) {}
