@@ -216,7 +216,10 @@ const tg = window.Telegram.WebApp;
 tg.expand();
 
 let telegramUser = tg.initDataUnsafe?.user;
-let userUniqueId = telegramUser ? telegramUser.id : Math.floor(100000 + Math.random() * 900000);
+// İstifadeçi ID-sini qorumaq üçün yoxlama (sıfırlanmanın qarşısını alır)
+let userUniqueId = telegramUser ? telegramUser.id : (localStorage.getItem('az_last_used_id') || Math.floor(100000 + Math.random() * 900000));
+localStorage.setItem('az_last_used_id', userUniqueId);
+
 let userFullName = telegramUser ? (telegramUser.first_name + (telegramUser.last_name ? " " + telegramUser.last_name : "")) : "Oyunçu";
 
 const urlParams = new URLSearchParams(window.location.search);
