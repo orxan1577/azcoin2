@@ -120,7 +120,7 @@ body{margin:0;padding:0;font-family:'Segoe UI', Tahoma, Verdana, sans-serif;disp
   <div class="settings-btn" onclick="safelyExecute(() => openModal('settingsModal'))">⚙️</div>
 
   <div class="rank-container">
-    <div class="rank-info-row"><span id="rankTitle">Master 👑 Level 0/10</span><span id="rankLevelText">0%</span></div>
+    <div class="rank-info-row"><span id="rankTitle">Master 👑 Level 1/100</span><span id="rankLevelText">0%</span></div>
     <div class="rank-bar-bg"><div class="rank-bar-fill" id="rankBarFill"></div></div>
   </div>
 
@@ -332,7 +332,7 @@ safelyExecute(async () => {
     let currentEnergy = 500;
     let tapPower = 1;
     let hourlyProfit = 10;
-    let level = 0;
+    let level = 1;
     let userName = userFullName;
     let savedWallet = '';
     let lastBonusTime = 0;
@@ -393,6 +393,7 @@ safelyExecute(async () => {
         if(!isNaN(savedLastTime)) lastActiveTimestamp = savedLastTime;
     } catch (e) {}
 
+    // Supabase-ə qeydiyyat / yoxlama
     try {
         let { data, error } = await supabaseClient.from('players').select('*').eq('id', userUniqueId).single();
         if (!data) {
@@ -401,7 +402,7 @@ safelyExecute(async () => {
                 name: userFullName,
                 balance: currentBalance,
                 profit: hourlyProfit,
-                level: 0,
+                level: 1,
                 referrer_id: referrerId
             };
             await supabaseClient.from('players').insert([newPlayer]);
@@ -412,18 +413,17 @@ safelyExecute(async () => {
             if ((data.profit || 10) > hourlyProfit) {
                 hourlyProfit = data.profit;
             }
-            level = data.level !== undefined ? data.level : 0;
+            level = data.level !== undefined && data.level >= 1 ? data.level : 1;
             userName = data.name || userFullName;
         }
     } catch (e) {}
 
-    // Arxa fonda qaldığı müddətdə (maksimum 3 saat = 10800 saniyə) qazancı hesablayırıq
     let backgroundEarnedCoins = 0;
     try {
         let nowTime = Date.now();
         let elapsedSec = Math.floor((nowTime - lastActiveTimestamp) / 1000);
         if(elapsedSec > 0 && hourlyProfit > 0) {
-            let effectiveSec = Math.min(elapsedSec, 3 * 3600); // 3 saat limit
+            let effectiveSec = Math.min(elapsedSec, 3 * 3600);
             backgroundEarnedCoins = Math.floor((hourlyProfit / 3600) * effectiveSec);
         }
     } catch(e){}
@@ -462,7 +462,7 @@ safelyExecute(async () => {
         if(savedTasks) tasksClaimed = JSON.parse(savedTasks);
     } catch (e) {}
 
-    // Ümumi qeydiyyatdan keçən oyunçu sayını da yoxlayıb dərhal UI-a yazırıq
+    // Bütün qeydiyyatdan keçən oyunçuların sayını dəqiq çəkmək
     async function updateGlobalPlayersCount() {
         try {
             let { count, error } = await supabaseClient.from('players', { count: 'exact', head: true });
@@ -505,17 +505,27 @@ safelyExecute(async () => {
     function updateRankSystem() {
         safelyExecute(() => {
             let totalCardLvl = cards.reduce((sum, c) => sum + (c.level || 0), 0);
-            level = Math.min(10, Math.floor(totalCardLvl / 6) + Math.floor(currentBalance / 20000));
-            
-            let percentage = (level * 10);
-            if(percentage > 100) percentage = 100;
+            let totalPoints = currentBalance + (totalCardLvl * 500);
+            let pointsPerLevel = 1000;
+
+            let calculatedLevel = Math.floor(totalPoints / pointsPerLevel) + 1;
+            if (calculatedLevel > 100) calculatedLevel = 100;
+            level = calculatedLevel;
+
+            let percentage = 0;
+            if (level >= 100) {
+                percentage = 100;
+            } else {
+                let remainder = totalPoints % pointsPerLevel;
+                percentage = Math.floor((remainder / pointsPerLevel) * 100);
+            }
 
             let rankTitle = document.getElementById('rankTitle');
             let rankLevelText = document.getElementById('rankLevelText');
             let rankBarFill = document.getElementById('rankBarFill');
 
-            if(rankTitle) rankTitle.innerText = `Master 👑 Level ${level}/10`;
-            if(rankLevelText) rankLevelText.innerText = `${Math.floor(percentage)}%`;
+            if(rankTitle) rankTitle.innerText = `Master 👑 Level ${level}/100`;
+            if(rankLevelText) rankLevelText.innerText = `${percentage}%`;
             if(rankBarFill) rankBarFill.style.width = `${percentage}%`;
         });
     }
@@ -543,6 +553,7 @@ safelyExecute(async () => {
         } catch (e) {}
     }
 
+    // Bütün oyunçuların siyahısını dəqiq çəkib göstərən hissə
     window.renderLeaderboard = async function(sortBy = 'balance') {
         let container = document.getElementById('leaderboardListContainer');
         if(!container) return;
@@ -568,12 +579,12 @@ safelyExecute(async () => {
         }
 
         try {
-            let { data: players, count, error } = await supabaseClient.from('players').select('*', { count: 'exact' }).order(sortBy, { ascending: false }).limit(50);
+            let { data: players, error } = await supabaseClient.from('players').select('*').order(sortBy, { ascending: false }).limit(100);
             
             updateGlobalPlayersCount();
 
             if (error || !players || players.length === 0) {
-                container.innerHTML = '<div style="text-align:center;color:#aaa;margin-top:20px;">Hələ heç bir lider tapılmadı.</div>';
+                container.innerHTML = '<div style="text-align:center;color:#aaa;margin-top:20px;">Hələ heç bir oyunçu tapılmadı.</div>';
                 return;
             }
 
@@ -583,6 +594,7 @@ safelyExecute(async () => {
                 let rankClass = rankNum === 1 ? 'top1' : (rankNum === 2 ? 'top2' : (rankNum === 3 ? 'top3' : ''));
                 let medal = rankNum === 1 ? '🥇' : (rankNum === 2 ? '🥈' : (rankNum === 3 ? '🥉' : rankNum));
                 let isMe = (String(p.id) === String(userUniqueId));
+                let pLvl = p.level !== undefined && p.level >= 1 ? p.level : 1;
 
                 container.innerHTML += `
                     <div class="leader-card ${isMe ? 'me' : ''}">
@@ -590,7 +602,7 @@ safelyExecute(async () => {
                             <div class="leader-rank ${rankClass}">${medal}</div>
                             <div class="leader-details">
                                 <b>${p.name || 'Oyunçu'} ${isMe ? '(Sən)' : ''}</b>
-                                <span>👑 Level ${p.level !== undefined ? p.level : 0}/10 • ID: ${p.id}</span>
+                                <span>👑 Level ${pLvl}/100 • ID: ${p.id}</span>
                             </div>
                         </div>
                         <div class="leader-right">
@@ -948,14 +960,12 @@ safelyExecute(async () => {
         });
     };
 
-    // İlkin yüklənmə zamanı əvvəl əsas ekranda köhnə balans görünür
     currentBalance = oldBalanceBeforeBackground;
     window.updateUI(); 
     window.renderCards(); 
     window.renderTasks(); 
     window.renderFriendsList();
 
-    // Əgər arxa fonda qazanc yığılıbsa, 1.2 saniyə sonra bildiriş göstərilir və balansın üzərinə gəlir
     if(backgroundEarnedCoins > 0) {
         setTimeout(() => {
             let rewardNotif = document.getElementById('rewardNotification');
