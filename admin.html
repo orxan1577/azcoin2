@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>AZ COIN - Admin Panel</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{box-sizing:border-box;user-select:none}
+body{margin:0;padding:15px;font-family:'Segoe UI', Tahoma, Verdana, sans-serif;background:#03080f;color:#fff}
+.admin-container{max-width:800px;margin:0 auto}
+h1{color:#ffd700;text-align:center;font-size:22px;margin-bottom:20px;text-shadow:0 0 10px rgba(255,215,0,0.4)}
+.stats-box{background:rgba(10,25,40,0.9);border:1.5px solid #ffd700;border-radius:14px;padding:15px;margin-bottom:20px;display:flex;justify-content:space-around;text-align:center}
+.stat-item span{font-size:12px;color:#aaa;display:block}
+.stat-item b{font-size:18px;color:#76ff03;margin-top:5px;display:block}
+.search-box{width:100%;padding:12px 15px;border-radius:12px;border:2px solid #ffd700;background:#0a1928;color:#ffe58b;font-size:14px;outline:none;margin-bottom:15px}
+.player-card{background:rgba(12,28,45,0.9);border:1px solid rgba(255,215,0,0.3);border-radius:12px;padding:12px 15px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
+.player-info b{color:#fff;font-size:14px;display:block}
+.player-info span{color:#ffea9f;font-size:11px}
+.player-actions{display:flex;gap:8px;align-items:center}
+.admin-input{width:90px;padding:6px 8px;border-radius:8px;border:1px solid #ffd700;background:#03080f;color:#ffd700;font-size:13px;outline:none}
+.admin-btn{padding:7px 12px;border-radius:8px;border:none;font-weight:bold;font-size:11px;cursor:pointer}
+.btn-add{background:linear-gradient(#00e676,#00c853);color:#fff}
+.btn-del{background:linear-gradient(#ff5252,#d32f2f);color:#fff}
+.loading{text-align:center;color:#aaa;padding:30px;font-size:14px}
+</style>
+</head>
+<body>
+<div class="admin-container">
+  <h1>🛡️ AZ COIN Admin Panel</h1>
+  
+  <div class="stats-box">
+    <div class="stat-item">
+      <span>Ümumi Oyunçu</span>
+      <b id="totalPlayersCount">0</b>
+    </div>
+    <div class="stat-item">
+      <span>Ümumi Balans</span>
+      <b id="totalCoinsCount">0 AZC</b>
+    </div>
+  </div>
+
+  <input type="text" id="searchInput" class="search-box" placeholder="🔍 Oyunçu adı və ya ID ilə axtar..." onkeyup="filterPlayers()">
+
+  <div id="playersListContainer">
+    <div class="loading">Məlumatlar yüklənir...</div>
+  </div>
+</div>
+
+<script>
+const SUPABASE_URL = 'https://okmzrwtbymnvpbtnlabg.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_DaNydYiJcVBmTXuADN7Rzg_8u5yFiE6';
+const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+let allPlayers = [];
+
+async function loadAdminData() {
+    let container = document.getElementById('playersListContainer');
+    try {
+        let { data: players, error } = await supabaseClient.from('players').select('*').order('balance', { ascending: false });
+        
+        if (error) {
+            container.innerHTML = '<div class="loading" style="color:#ff5252;">Məlumatları çəkərkən xəta baş verdi!</div>';
+            return;
+        }
+
+        allPlayers = players || [];
+        renderPlayers(allPlayers);
+        updateStats(allPlayers);
+    } catch (e) {
+        container.innerHTML = '<div class="loading" style="color:#ff5252;">Bağlantı xətası!</div>';
+    }
+}
+
+function updateStats(players) {
+    document.getElementById('totalPlayersCount').innerText = players.length;
+    let totalBal = players.reduce((sum, p) => sum + (p.balance || 0), 0);
+    document.getElementById('totalCoinsCount').innerText = Math.floor(totalBal).toLocaleString() + ' AZC';
+}
+
+function renderPlayers(players) {
+    let container = document.getElementById('playersListContainer');
+    if (players.length === 0) {
+        container.innerHTML = '<div class="loading">Heç bir oyunçu tapılmadı.</div>';
+        return;
+    }
+
+    container.innerHTML = '';
+    players.forEach(p => {
+        let pLvl = p.level !== undefined && p.level >= 1 ? p.level : 1;
+        container.innerHTML += `
+            <div class="player-card" id="row_${p.id}">
+                <div class="player-info">
+                    <b>${p.name || 'Oyunçu'}</b>
+                    <span>ID: ${p.id} • 👑 Lvl ${pLvl}/100 • 🪙 ${Math.floor(p.balance || 0).toLocaleString()} AZC • +${(p.profit || 10).toLocaleString()}/saat</span>
+                </div>
+                <div class="player-actions">
+                    <input type="number" id="amt_${p.id}" class="admin-input" placeholder="Məbləğ" value="1000">
+                    <button class="admin-btn btn-add" onclick="modifyBalance('${p.id}', 'add')">+ Əlavə et</button>
+                    <button class="admin-btn btn-add" style="background:linear-gradient(#29b6f6,#0288d1)" onclick="modifyBalance('${p.id}', 'set')">Yenilə</button>
+                    <button class="admin-btn btn-del" onclick="deletePlayer('${p.id}')">Sil</button>
+                </div>
+            </div>
+        `;
+    });
+}
+
+function filterPlayers() {
+    let query = document.getElementById('searchInput').value.toLowerCase();
+    let filtered = allPlayers.filter(p => 
+        (p.name && p.name.toLowerCase().includes(query)) || 
+        (String(p.id).toLowerCase().includes(query))
+    );
+    renderPlayers(filtered);
+}
+
+async function modifyBalance(id, action) {
+    let inputEl = document.getElementById(`amt_${id}`);
+    let val = parseFloat(inputEl.value);
+    if (isNaN(val) || val <= 0) {
+        alert("Etibarlı məbləğ daxil edin!");
+        return;
+    }
+
+    let player = allPlayers.find(p => String(p.id) === String(id));
+    if (!player) return;
+
+    let newBalance = action === 'add' ? (player.balance || 0) + val : val;
+
+    let { error } = await supabaseClient.from('players').update({ balance: Math.floor(newBalance) }).eq('id', id);
+    if (!error) {
+        player.balance = newBalance;
+        renderPlayers(allPlayers);
+        updateStats(allPlayers);
+        alert("Balans uğurla yeniləndi!");
+    } else {
+        alert("Xəta baş verdi!");
+    }
+}
+
+async function deletePlayer(id) {
+    if (!confirm("Bu oyunçunu silmək istədiyinizə əminsinizmi?")) return;
+
+    let { error } = await supabaseClient.from('players').delete().eq('id', id);
+    if (!error) {
+        allPlayers = allPlayers.filter(p => String(p.id) !== String(id));
+        renderPlayers(allPlayers);
+        updateStats(allPlayers);
+        alert("Oyunçu silindi.");
+    } else {
+        alert("Silinərkən xəta baş verdi!");
+    }
+}
+
+loadAdminData();
+</script>
+</body>
+</html>
