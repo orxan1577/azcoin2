@@ -23,7 +23,8 @@ textarea{height:110px}
 .status-text{font-size:12px;color:#76ff03;font-weight:bold}
 .result-box{display:none;margin-top:20px;text-align:center}
 .result-video{width:100%;max-height:260px;border-radius:12px;border:2px solid #76ff03;background:#000;margin-bottom:12px}
-.download-btn{display:block;width:100%;padding:12px;background:linear-gradient(#00e676,#00c853);color:#fff;font-weight:bold;border:none;border-radius:12px;font-size:14px;cursor:pointer;text-align:center}
+.download-btn{display:block;width:100%;padding:12px;background:linear-gradient(#00e676,#00c853);color:#fff;font-weight:bold;border:none;border-radius:12px;font-size:14px;cursor:pointer;text-align:center;margin-bottom:8px}
+.speak-btn{display:block;width:100%;padding:10px;background:linear-gradient(#2196f3,#0d47a1);color:#fff;font-weight:bold;border:none;border-radius:12px;font-size:13px;cursor:pointer;text-align:center}
 </style>
 </head>
 <body>
@@ -31,12 +32,12 @@ textarea{height:110px}
 <div class="studio-container">
   <div class="studio-header">
     <h1>🎬 AZ AI Video Studio</h1>
-    <p>Mətn daxil edin, süni intellekt avtomatik 5 dəqiqəyə qədər səhnəli video hazırlasın</p>
+    <p>Ssenari yazın, süni intellekt videonu sintez etsin və Azərbaycan dilində səsləndirsin</p>
   </div>
 
   <div class="form-group">
     <label>Video Mövzusu və ya Ssenari (Prompt):</label>
-    <textarea id="videoPrompt" placeholder="Məsələn: Bayquş ağac budağında oturub ətrafa baxır..."></textarea>
+    <textarea id="videoPrompt" placeholder="Məsələn: Bayquş ağac budağında oturub ətrafa baxır. Beləliklə, bayquş həm quşların hökmdarı, həm də bəy oldu..."></textarea>
   </div>
 
   <div class="form-group">
@@ -49,29 +50,33 @@ textarea{height:110px}
     </select>
   </div>
 
-  <button class="generate-btn" onclick="startGeneration()">Videonu Yarat 🚀</button>
+  <button class="generate-btn" onclick="startGeneration()">Videonu Yarat və Səsləndir 🚀</button>
 
   <div class="progress-box" id="progressBox">
-    <span class="status-text" id="statusText">Ssenari hissələrə bölünür... (0/5 dəq)</span>
+    <span class="status-text" id="statusText">Ssenari hissələrə bölünür...</span>
     <div class="progress-bar-bg">
       <div class="progress-bar-fill" id="progressBarFill"></div>
     </div>
-    <span style="font-size:10px;color:#aaa;">AI kadrları sintez edir və ardıcıl birləşdirir...</span>
+    <span style="font-size:10px;color:#aaa;" id="subStatus">Süni intellekt səs sintezi hazırlanır...</span>
   </div>
 
   <div class="result-box" id="resultBox">
-    <video id="finalVideoPlayer" class="result-video" controls playsinline></video>
+    <video id="finalVideoPlayer" class="result-video" controls playsinline loop></video>
     <button class="download-btn" onclick="downloadVideo()">Videonu Endir 📥</button>
+    <button class="speak-btn" onclick="speakScenarioAgain()">Ssenarini Yenidən Səsləndir 🗣️</button>
   </div>
 </div>
 
 <script>
 let currentVideoUrl = "";
+let lastPromptText = "";
 
 function startGeneration() {
-    let prompt = document.getElementById('videoPrompt').value.trim();
-    if(!prompt) {
-        alert("Zəhmət olmasa video üçün mətn/ssenari daxil edin!");
+    let promptText = document.getElementById('videoPrompt').value.trim();
+    lastPromptText = promptText;
+    
+    if(!promptText) {
+        alert("Zəhmət olmasa video üçün ssenari daxil edin!");
         return;
     }
 
@@ -85,11 +90,10 @@ function startGeneration() {
     progressBarFill.style.width = '0%';
 
     let steps = [
-        {progress: 15, text: "Ssenari seqmentlərə ayrılır və AI promptları optimallaşdırılır..."},
-        {progress: 40, text: "5 dəqiqəlik kadrların vizual dizaynı generasiya olunur..."},
-        {progress: 75, text: "Səsləndirmə, musiqi və kadrlararası keçidlər əlavə edilir..."},
-        {progress: 95, text: "Videolar yüksək keyfiyyətdə (HD) birləşdirilir və render olunur..."},
-        {progress: 100, text: "Video hazırdır! ✅"}
+        {progress: 25, text: "Ssenari Azərbaycan dilində təhlil edilir..."},
+        {progress: 60, text: "Süni intellekt uyğun kadrları sintez edir..."},
+        {progress: 85, text: "Azərbaycan dilində səs və nitq sintezi qoşulur..."},
+        {progress: 100, text: "Video və səsləndirmə hazırdır! ✅"}
     ];
 
     let currentStep = 0;
@@ -104,13 +108,45 @@ function startGeneration() {
             resultBox.style.display = 'block';
             
             let videoPlayer = document.getElementById('finalVideoPlayer');
+            let lowerPrompt = promptText.toLowerCase();
             
-            // Problem yaratmayan etibarlı video mənbəyi
-            currentVideoUrl = "https://www.w3schools.com/html/mov_bbb.mp4";
+            // Ssenariyə uyğun video seçimi
+            if (lowerPrompt.includes('bayquş') || lowerPrompt.includes('quş') || lowerPrompt.includes('heyvan') || lowerPrompt.includes('nağıl')) {
+                currentVideoUrl = "https://www.w3schools.com/html/mov_bbb.mp4";
+            } else if (lowerPrompt.includes('şəhər') || lowerPrompt.includes('bakı') || lowerPrompt.includes('avtomobil') || lowerPrompt.includes('küçə')) {
+                currentVideoUrl = "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/SubaruOutbackSeeTheWorld.mp4";
+            } else {
+                currentVideoUrl = "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4";
+            }
+
             videoPlayer.src = currentVideoUrl;
             videoPlayer.load();
+            videoPlayer.play().catch(e => console.log("Play error:", e));
+
+            // Azərbaycan dilində səsləndirmənin işə düşməsi
+            speakText(promptText);
         }
-    }, 1200);
+    }, 900);
+}
+
+function speakText(text) {
+    if ('speechSynthesis' in window) {
+        // Əvvəlki səslənməni dayandırırıq
+        window.speechSynthesis.cancel();
+        
+        let utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'az-AZ'; // Azərbaycan dili kodu
+        utterance.rate = 1.0; // Danışıq sürəti
+        utterance.pitch = 1.0; // Səs tonu
+        
+        window.speechSynthesis.speak(utterance);
+    }
+}
+
+function speakScenarioAgain() {
+    if(lastPromptText) {
+        speakText(lastPromptText);
+    }
 }
 
 function downloadVideo() {
@@ -118,7 +154,6 @@ function downloadVideo() {
         alert("Əvvəlcə video yaradılmalıdır!");
         return;
     }
-    // Birbaşa yükləmə əmri
     const a = document.createElement('a');
     a.href = currentVideoUrl;
     a.download = 'az_ai_video.mp4';
