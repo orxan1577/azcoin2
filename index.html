@@ -2,10 +2,10 @@
 <html lang="az">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>AZ AI Video Studio - 5 Dəqiqəlik Video Generator</title>
 <style>
-*{box-sizing:box-sizing;margin:0;padding:0;font-family:'Segoe UI', Tahoma, sans-serif;-webkit-tap-highlight-color:transparent}
+*{box-sizing:border-box;margin:0;padding:0;font-family:'Segoe UI', Tahoma, sans-serif;-webkit-tap-highlight-color:transparent}
 body{background:#0b0f19;color:#fff;display:flex;justify-content:center;align-items:center;min-height:100vh;padding:15px}
 .studio-container{width:100%;max-width:500px;background:rgba(18,27,45,0.9);border:2px solid #ffd700;border-radius:20px;padding:20px;box-shadow:0 10px 30px rgba(0,0,0,0.8)}
 .studio-header{text-align:center;margin-bottom:20px}
@@ -60,7 +60,7 @@ textarea{height:110px}
   </div>
 
   <div class="result-box" id="resultBox">
-    <video id="finalVideoPlayer" class="result-video" controls autoplay loop></video>
+    <video id="finalVideoPlayer" class="result-video" controls playsinline></video>
     <a href="#" id="downloadLink" class="download-btn" download="az_ai_video.mp4">Videonu Endir 📥</a>
   </div>
 </div>
@@ -101,14 +101,16 @@ function startGeneration() {
             progressBox.style.display = 'none';
             resultBox.style.display = 'block';
             
-            // Test üçün nümunə video URL-i təyin edilir
             let videoPlayer = document.getElementById('finalVideoPlayer');
             let downloadLink = document.getElementById('downloadLink');
             
-            // İstədiyiniz stabil bir nümunə video mənbəyi
-            let sampleVideoUrl = "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4";
+            // Telegram-da tam uyğun və birbaşa açılan sınaq video linki təyin edildi
+            let sampleVideoUrl = "https://www.w3schools.com/html/mov_bbb.mp4";
             videoPlayer.src = sampleVideoUrl;
             downloadLink.href = sampleVideoUrl;
+            
+            // Avtomatik oynatma cəhdi
+            videoPlayer.play().catch(e => console.log("Avtomatik oynatma bloklandı, istifadəçi düyməyə basmalıdır"));
         }
     }, 1200);
 }
