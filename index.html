@@ -37,7 +37,7 @@ textarea{height:110px}
 
   <div class="form-group">
     <label>Video Mövzusu və ya Ssenari (Prompt):</label>
-    <textarea id="videoPrompt" placeholder="Məsələn: Kosmosda ulduzlar, dəniz dalğaları, avtomobil səyahəti və ya bayquş nağılı..."></textarea>
+    <textarea id="videoPrompt" placeholder="Məsələn: Bayquş ağac budağında oturub... və ya Dəniz dalğaları..."></textarea>
   </div>
 
   <div class="form-group">
@@ -110,10 +110,10 @@ function startGeneration() {
             let videoPlayer = document.getElementById('finalVideoPlayer');
             let lowerPrompt = promptText.toLowerCase();
             
-            // MƏTNƏ (PROMPTA) UYĞUN OLARAQ FƏRQLİ VİDEO MƏNBƏLƏRİ SEÇİLİR:
+            // FƏRQLİ MÖVZULAR ÜÇÜN TAMAMİLƏ FƏRQLİ VİDEOLAR:
             if (lowerPrompt.includes('bayquş') || lowerPrompt.includes('quş') || lowerPrompt.includes('heyvan') || lowerPrompt.includes('nağıl')) {
-                // Heyvan / Cizgi kadrı
-                currentVideoUrl = "https://www.w3schools.com/html/mov_bbb.mp4";
+                // Bayquş və ya quşlar üçün fərqli dinamik təbiət kadrı (dovşan deyil)
+                currentVideoUrl = "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4";
             } else if (lowerPrompt.includes('şəhər') || lowerPrompt.includes('bakı') || lowerPrompt.includes('avtomobil') || lowerPrompt.includes('küçə') || lowerPrompt.includes('səyahət')) {
                 // Şəhər və səyahət kadrı
                 currentVideoUrl = "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/SubaruOutbackSeeTheWorld.mp4";
@@ -121,10 +121,10 @@ function startGeneration() {
                 // Təbiət / Su kadrı
                 currentVideoUrl = "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/WeAreGoingOnBullrun.mp4";
             } else if (lowerPrompt.includes('kosmos') || lowerPrompt.includes('ulduz') || lowerPrompt.includes('uçuş') || lowerPrompt.includes('raket')) {
-                // Aksiyon / Dinamik kadr
+                // Kosmos / Kinekoqrafik kadr
                 currentVideoUrl = "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4";
             } else {
-                // Ümumi / Standart kadr
+                // Ümumi kadr
                 currentVideoUrl = "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4";
             }
 
