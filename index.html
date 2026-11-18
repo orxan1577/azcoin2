@@ -32,12 +32,12 @@ textarea{height:110px}
 <div class="studio-container">
   <div class="studio-header">
     <h1>🎬 AZ AI Video Studio</h1>
-    <p>Ssenari yazın, süni intellekt videonu sintez etsin və Azərbaycan dilində səsləndirsin</p>
+    <p>Ssenari yazın, süni intellekt mətnə uyğun fərqli video seçsin və səsləndirsin</p>
   </div>
 
   <div class="form-group">
     <label>Video Mövzusu və ya Ssenari (Prompt):</label>
-    <textarea id="videoPrompt" placeholder="Məsələn: Bayquş ağac budağında oturub ətrafa baxır. Beləliklə, bayquş həm quşların hökmdarı, həm də bəy oldu..."></textarea>
+    <textarea id="videoPrompt" placeholder="Məsələn: Kosmosda ulduzlar, dəniz dalğaları, avtomobil səyahəti və ya bayquş nağılı..."></textarea>
   </div>
 
   <div class="form-group">
@@ -53,11 +53,11 @@ textarea{height:110px}
   <button class="generate-btn" onclick="startGeneration()">Videonu Yarat və Səsləndir 🚀</button>
 
   <div class="progress-box" id="progressBox">
-    <span class="status-text" id="statusText">Ssenari hissələrə bölünür...</span>
+    <span class="status-text" id="statusText">Mətn təhlil edilir...</span>
     <div class="progress-bar-bg">
       <div class="progress-bar-fill" id="progressBarFill"></div>
     </div>
-    <span style="font-size:10px;color:#aaa;" id="subStatus">Süni intellekt səs sintezi hazırlanır...</span>
+    <span style="font-size:10px;color:#aaa;" id="subStatus">Süni intellekt uyğun kadrları axtarır...</span>
   </div>
 
   <div class="result-box" id="resultBox">
@@ -90,9 +90,9 @@ function startGeneration() {
     progressBarFill.style.width = '0%';
 
     let steps = [
-        {progress: 25, text: "Ssenari Azərbaycan dilində təhlil edilir..."},
-        {progress: 60, text: "Süni intellekt uyğun kadrları sintez edir..."},
-        {progress: 85, text: "Azərbaycan dilində səs və nitq sintezi qoşulur..."},
+        {progress: 25, text: "Ssenaridəki açar sözlər analiz edilir..."},
+        {progress: 60, text: "Mətnə ən uyğun video kadr bazadan seçilir..."},
+        {progress: 85, text: "Azərbaycan dilində səs sintezi hazırlanır..."},
         {progress: 100, text: "Video və səsləndirmə hazırdır! ✅"}
     ];
 
@@ -110,12 +110,21 @@ function startGeneration() {
             let videoPlayer = document.getElementById('finalVideoPlayer');
             let lowerPrompt = promptText.toLowerCase();
             
-            // Ssenariyə uyğun video seçimi
+            // MƏTNƏ (PROMPTA) UYĞUN OLARAQ FƏRQLİ VİDEO MƏNBƏLƏRİ SEÇİLİR:
             if (lowerPrompt.includes('bayquş') || lowerPrompt.includes('quş') || lowerPrompt.includes('heyvan') || lowerPrompt.includes('nağıl')) {
+                // Heyvan / Cizgi kadrı
                 currentVideoUrl = "https://www.w3schools.com/html/mov_bbb.mp4";
-            } else if (lowerPrompt.includes('şəhər') || lowerPrompt.includes('bakı') || lowerPrompt.includes('avtomobil') || lowerPrompt.includes('küçə')) {
+            } else if (lowerPrompt.includes('şəhər') || lowerPrompt.includes('bakı') || lowerPrompt.includes('avtomobil') || lowerPrompt.includes('küçə') || lowerPrompt.includes('səyahət')) {
+                // Şəhər və səyahət kadrı
                 currentVideoUrl = "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/SubaruOutbackSeeTheWorld.mp4";
+            } else if (lowerPrompt.includes('dəniz') || lowerPrompt.includes('su') || lowerPrompt.includes('okean') || lowerPrompt.includes('çimərlik')) {
+                // Təbiət / Su kadrı
+                currentVideoUrl = "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/WeAreGoingOnBullrun.mp4";
+            } else if (lowerPrompt.includes('kosmos') || lowerPrompt.includes('ulduz') || lowerPrompt.includes('uçuş') || lowerPrompt.includes('raket')) {
+                // Aksiyon / Dinamik kadr
+                currentVideoUrl = "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4";
             } else {
+                // Ümumi / Standart kadr
                 currentVideoUrl = "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4";
             }
 
@@ -123,7 +132,7 @@ function startGeneration() {
             videoPlayer.load();
             videoPlayer.play().catch(e => console.log("Play error:", e));
 
-            // Azərbaycan dilində səsləndirmənin işə düşməsi
+            // Azərbaycan dilində səsləndirmə
             speakText(promptText);
         }
     }, 900);
@@ -131,14 +140,11 @@ function startGeneration() {
 
 function speakText(text) {
     if ('speechSynthesis' in window) {
-        // Əvvəlki səslənməni dayandırırıq
         window.speechSynthesis.cancel();
-        
         let utterance = new SpeechSynthesisUtterance(text);
-        utterance.lang = 'az-AZ'; // Azərbaycan dili kodu
-        utterance.rate = 1.0; // Danışıq sürəti
-        utterance.pitch = 1.0; // Səs tonu
-        
+        utterance.lang = 'az-AZ';
+        utterance.rate = 1.0;
+        utterance.pitch = 1.0;
         window.speechSynthesis.speak(utterance);
     }
 }
